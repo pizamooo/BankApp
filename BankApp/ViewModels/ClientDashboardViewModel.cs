@@ -1,0 +1,281 @@
+﻿using BankApp.Data;
+using BankApp.Models.Dashboard;
+using BankApp.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Data.SqlClient;
+using System.Collections.Generic;
+using BankApp.Models;
+using BankApp.Views;
+
+namespace BankApp.ViewModels
+{
+    public class ClientDashboardViewModel : BaseViewModel
+    {
+        private decimal _balance;
+
+        public decimal Balance
+        {
+            get { return _balance; }
+            set
+            {
+                _balance = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BalanceText));
+            }
+        }
+
+        public string UserName
+        {
+            get { return Session.CurrentUser.FullName; }
+        }
+
+        public string BalanceText
+        {
+            get { return Balance.ToString("N0") + " ₽"; }
+        }
+
+        public string IBAN
+        {
+            get { return "RU" + Session.CurrentUser.Id.ToString("0000000000000000"); }
+        }
+
+        public ObservableCollection<OperationItem> LastOperations { get; set; }
+        public ObservableCollection<TemplateItem> Templates { get; set; }
+        public ObservableCollection<ChartBarItem> ChartBars { get; set; }
+        public static ClientDashboardViewModel Instance { get; private set; }
+
+
+        public decimal TotalIncome { get; set; }
+        public decimal TotalExpense { get; set; }
+
+        public string ChartTitle
+        {
+            get { return "Финансы за " + DateTime.Now.Year; }
+        }
+
+        public ClientDashboardViewModel()
+        {
+            Instance = this;
+            LastOperations = new ObservableCollection<OperationItem>();
+            Templates = new ObservableCollection<TemplateItem>();
+            ChartBars = new ObservableCollection<ChartBarItem>();
+
+            LoadData();
+        }
+
+        public void Refresh()
+        {
+            LoadData();
+            OnPropertyChanged(nameof(Balance));
+            OnPropertyChanged(nameof(BalanceText));
+            OnPropertyChanged(nameof(LastOperations));
+        }
+
+        private void LoadData()
+        {
+            LoadBalance();
+            LoadLastOperations();
+            LoadTemplates();
+            LoadChart();
+        }
+
+        // =========================
+        // CHART
+        // =========================
+        private void LoadChart()
+        {
+            ChartBars.Clear();
+
+            SqlConnection conn = DatabaseHelper.GetConnection();
+
+            try
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand(@"
+SELECT 
+    DATENAME(MONTH, Date) AS Month,
+
+    SUM(CASE WHEN Category IN ('Deposit','TransferIn') 
+             THEN Amount ELSE 0 END) AS Income,
+
+    SUM(CASE WHEN Category IN ('TransferOut','Withdraw','Fee') 
+             THEN Amount ELSE 0 END) AS Expense
+
+FROM Transactions t
+INNER JOIN Accounts a ON t.AccountId = a.Id
+WHERE a.ClientId = @id
+GROUP BY DATENAME(MONTH, Date)
+ORDER BY MIN(Date)", conn);
+
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                List<Tuple<string, double, double>> raw =
+                    new List<Tuple<string, double, double>>();
+
+                double max = 0;
+
+                while (reader.Read())
+                {
+                    double income = reader["Income"] != DBNull.Value
+                        ? Convert.ToDouble(reader["Income"])
+                        : 0;
+
+                    double expense = reader["Expense"] != DBNull.Value
+                        ? Convert.ToDouble(reader["Expense"])
+                        : 0;
+
+                    string month = reader["Month"].ToString();
+
+                    raw.Add(new Tuple<string, double, double>(
+                        month,
+                        income,
+                        expense));
+
+                    if (income > max) max = income;
+                    if (expense > max) max = expense;
+                }
+
+                reader.Close();
+
+                foreach (var r in raw)
+                {
+                    ChartBars.Add(new ChartBarItem
+                    {
+                        Month = r.Item1,
+                        IncomeHeight = max == 0 ? 0 : (r.Item2 / max) * 100,
+                        ExpenseHeight = max == 0 ? 0 : (r.Item3 / max) * 100
+                    });
+                }
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            OnPropertyChanged(nameof(ChartBars));
+        }
+
+        // =========================
+        // BALANCE
+        // =========================
+        private void LoadBalance()
+        {
+            SqlConnection conn = DatabaseHelper.GetConnection();
+
+            try
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand(@"
+SELECT ISNULL(SUM(Balance),0)
+FROM Accounts
+WHERE ClientId=@id
+AND IsClosed = 0", conn);
+
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+
+                object result = cmd.ExecuteScalar();
+
+                Balance = (result == null || result == DBNull.Value)
+                    ? 0
+                    : Convert.ToDecimal(result);
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        // =========================
+        // LAST OPERATIONS
+        // =========================
+        private void LoadLastOperations()
+        {
+            LastOperations.Clear();
+
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SqlCommand(@"
+SELECT TOP 10
+    t.Description,
+    t.Amount,
+    t.Date,
+    t.Type,
+    t.Category
+FROM Transactions t
+WHERE t.AccountId IN (
+    SELECT Id FROM Accounts WHERE ClientId = @id
+)
+ORDER BY t.Date DESC", conn);
+
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    decimal amount = reader["Amount"] != DBNull.Value
+                        ? Convert.ToDecimal(reader["Amount"])
+                        : 0;
+
+                    string category = reader["Category"]?.ToString();
+                    string desc = reader["Description"]?.ToString();
+
+                    DateTime date = Convert.ToDateTime(reader["Date"]);
+
+                    string title;
+
+                    if (category == "TransferIn")
+                    {
+                        title = "📥 От: " + ExtractName(desc);
+                    }
+                    else if (category == "TransferOut")
+                    {
+                        title = "📤 Кому: " + ExtractName(desc);
+                    }
+                    else
+                    {
+                        title = desc ?? "Операция";
+                    }
+
+                    bool isIncome = category == "Deposit" || category == "TransferIn";
+
+                    LastOperations.Add(new OperationItem
+                    {
+                        Title = title,
+                        DateText = date.ToString("dd.MM.yyyy HH:mm"),
+                        AmountText = (isIncome ? "+" : "-") + amount.ToString("N2") + " ₽",
+                        IsIncome = isIncome
+                    });
+                }
+            }
+        }
+
+        private string ExtractName(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return "неизвестно";
+
+            return text.Split('(')[0].Trim();
+        }
+
+        // =========================
+        // TEMPLATES
+        // =========================
+        private void LoadTemplates()
+        {
+            Templates.Clear();
+
+            Templates.Add(new TemplateItem { Name = "Мобильная связь", Icon = "📱" });
+            Templates.Add(new TemplateItem { Name = "Интернет", Icon = "🌐" });
+            Templates.Add(new TemplateItem { Name = "Коммуналка", Icon = "🏠" });
+            Templates.Add(new TemplateItem { Name = "Steam", Icon = "🎮" });
+        }
+    }
+}

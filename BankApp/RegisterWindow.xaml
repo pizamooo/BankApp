@@ -1,0 +1,313 @@
+﻿<Window x:Class="BankApp.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:BankApp.ViewModels"
+        xmlns:conv="clr-namespace:BankApp.Converters"
+        Title="Регистрация"
+        Height="700"
+        Width="480"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI"
+        FontSize="14"
+        Background="#F5F6FA">
+
+	<Window.DataContext>
+		<vm:RegisterViewModel/>
+	</Window.DataContext>
+
+	<Window.Resources>
+
+		<conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+		<conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility"/>
+
+		<!-- CARD -->
+		<Style x:Key="Card" TargetType="Border">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="CornerRadius" Value="14"/>
+			<Setter Property="Padding" Value="30,25"/>
+			<Setter Property="Margin" Value="20"/>
+			<Setter Property="Effect">
+				<Setter.Value>
+					<DropShadowEffect BlurRadius="25" ShadowDepth="2" Opacity="0.15"/>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- LABEL -->
+		<Style x:Key="Label" TargetType="TextBlock">
+			<Setter Property="Margin" Value="0,12,0,4"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Foreground" Value="#333"/>
+			<Setter Property="FontSize" Value="13"/>
+		</Style>
+
+		<!-- INPUT BORDER -->
+		<Style x:Key="InputBorder" TargetType="Border">
+			<Setter Property="Background" Value="#FAFAFA"/>
+			<Setter Property="BorderBrush" Value="#D0D0D0"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Height" Value="42"/>
+		</Style>
+
+		<!-- INNER CONTROL -->
+		<Style x:Key="InnerControl" TargetType="Control">
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+
+		<!-- ERROR -->
+		<Style x:Key="Error" TargetType="TextBlock">
+			<Setter Property="Foreground" Value="#EF4444"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="Margin" Value="0,4,0,0"/>
+		</Style>
+
+		<!-- BUTTON PRIMARY -->
+		<Style x:Key="PrimaryButton" TargetType="Button">
+			<Setter Property="Height" Value="44"/>
+			<Setter Property="Background" Value="#4F46E5"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,15,0,0"/>
+		</Style>
+
+		<!-- BUTTON SECONDARY -->
+		<Style x:Key="SecondaryButton" TargetType="Button">
+			<Setter Property="Height" Value="44"/>
+			<Setter Property="Background" Value="#E5E7EB"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,8,0,0"/>
+		</Style>
+
+		<!-- EYE BUTTON -->
+		<Style x:Key="EyeButton" TargetType="Button">
+			<Setter Property="Width" Value="32"/>
+			<Setter Property="Height" Value="32"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,0,6,0"/>
+			<Setter Property="Panel.ZIndex" Value="10"/>
+		</Style>
+
+	</Window.Resources>
+
+	<Grid>
+
+		<Border Style="{StaticResource Card}">
+
+			<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0 0 10 0">
+
+				<Grid>
+
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<!-- Title -->
+						<RowDefinition Height="Auto"/>
+						<!-- FIO -->
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+
+						<RowDefinition Height="Auto"/>
+						<!-- Phone -->
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+
+						<RowDefinition Height="Auto"/>
+						<!-- Login -->
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+
+						<RowDefinition Height="Auto"/>
+						<!-- Password -->
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+
+						<RowDefinition Height="Auto"/>
+						<!-- Repeat -->
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+
+						<RowDefinition Height="Auto"/>
+						<!-- Strength -->
+						<RowDefinition Height="Auto"/>
+						<!-- Buttons -->
+					</Grid.RowDefinitions>
+
+					<!-- TITLE -->
+					<TextBlock Text="Создание аккаунта"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"
+                               Foreground="#1E293B"/>
+
+					<!-- FIO -->
+					<TextBlock Grid.Row="1" Text="ФИО" Style="{StaticResource Label}"/>
+					<Border Grid.Row="2" Style="{StaticResource InputBorder}">
+						<TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InnerControl}"
+								 PreviewTextInput="OnlyLetters_PreviewTextInput"
+								 DataObject.Pasting="TextBox_Pasting"
+                                 Padding="12,0"/>
+					</Border>
+					<TextBlock Grid.Row="3" Text="{Binding FullNameError}" Style="{StaticResource Error}"/>
+
+					<!-- PHONE -->
+					<TextBlock Grid.Row="4" Text="Телефон" Style="{StaticResource Label}"/>
+					<Border Grid.Row="5" Style="{StaticResource InputBorder}">
+						<TextBox Text="{Binding PhoneDigits, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InnerControl}"
+								 PreviewTextInput="OnlyDigits_PreviewTextInput"
+								 DataObject.Pasting="Phone_Pasting"
+                                 Padding="12,0"/>
+					</Border>
+					<TextBlock Grid.Row="6" Text="{Binding PhoneError}" Style="{StaticResource Error}"/>
+
+					<!-- LOGIN -->
+					<TextBlock Grid.Row="7" Text="Логин" Style="{StaticResource Label}"/>
+					<Border Grid.Row="8" Style="{StaticResource InputBorder}">
+						<TextBox Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InnerControl}"
+								 PreviewTextInput="Login_PreviewTextInput"
+								 DataObject.Pasting="Login_Pasting"
+                                 Padding="12,0"/>
+					</Border>
+					<TextBlock Grid.Row="9" Text="{Binding LoginError}" Style="{StaticResource Error}"/>
+
+					<!-- PASSWORD -->
+					<TextBlock Grid.Row="10" Text="Пароль" Style="{StaticResource Label}"/>
+
+					<Border Grid.Row="11" Style="{StaticResource InputBorder}">
+						<Grid>
+
+							<PasswordBox x:Name="PasswordBox"
+                                         Style="{StaticResource InnerControl}"
+                                         Padding="12,0,40,0"
+                                         PasswordChanged="PasswordBox_PasswordChanged"
+										 DataObject.Pasting="Password_Pasting"
+                                         Visibility="{Binding IsPasswordHidden, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+							<TextBox x:Name="PasswordTextBox"
+                                     Style="{StaticResource InnerControl}"
+                                     Padding="12,0,40,0"
+                                     Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="{Binding IsPasswordHidden, Converter={StaticResource InverseBooleanToVisibility}}"/>
+
+							<Button Style="{StaticResource EyeButton}"
+                                    Click="TogglePassword">
+								<TextBlock Text="👁"
+                                           FontSize="16"
+                                           Foreground="#64748B"/>
+							</Button>
+
+						</Grid>
+					</Border>
+
+					<TextBlock Grid.Row="12" Text="{Binding PasswordError}" Style="{StaticResource Error}"/>
+
+					<!-- REPEAT PASSWORD -->
+					<TextBlock Grid.Row="13" Text="Повтор пароля" Style="{StaticResource Label}"/>
+
+					<Border Grid.Row="14" Style="{StaticResource InputBorder}">
+						<PasswordBox x:Name="RepeatPasswordBox"
+                                     Style="{StaticResource InnerControl}"
+									 DataObject.Pasting="Password_Pasting"
+                                     Padding="12,0"
+                                     PasswordChanged="RepeatPasswordBox_PasswordChanged"/>
+					</Border>
+
+					<TextBlock Grid.Row="15" Text="{Binding RepeatPasswordError}" Style="{StaticResource Error}"/>
+
+					<!-- STRENGTH -->
+					<StackPanel Grid.Row="16" Margin="0,15,0,10">
+
+					<ProgressBar Height="8"
+                 Maximum="4"
+                 Value="{Binding PasswordStrength, Mode=OneWay}"
+                 Background="#E2E8F0">
+
+						<ProgressBar.Style>
+							<Style TargetType="ProgressBar">
+								<Setter Property="Foreground" Value="#EF4444"/>
+
+								<Style.Triggers>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="2">
+										<Setter Property="Foreground" Value="#F59E0B"/>
+									</DataTrigger>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="3">
+										<Setter Property="Foreground" Value="#3B82F6"/>
+									</DataTrigger>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="4">
+										<Setter Property="Foreground" Value="#22C55E"/>
+									</DataTrigger>
+
+								</Style.Triggers>
+							</Style>
+						</ProgressBar.Style>
+					</ProgressBar>
+
+					<TextBlock Text="{Binding PasswordStrengthText}"
+               Margin="0,6,0,0"
+               FontWeight="SemiBold">
+
+						<TextBlock.Style>
+							<Style TargetType="TextBlock">
+
+								<Setter Property="Foreground" Value="#EF4444"/>
+
+								<Style.Triggers>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="2">
+										<Setter Property="Foreground" Value="#F59E0B"/>
+									</DataTrigger>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="3">
+										<Setter Property="Foreground" Value="#3B82F6"/>
+									</DataTrigger>
+
+									<DataTrigger Binding="{Binding PasswordStrength}" Value="4">
+										<Setter Property="Foreground" Value="#22C55E"/>
+									</DataTrigger>
+
+								</Style.Triggers>
+							</Style>
+						</TextBlock.Style>
+
+					</TextBlock>
+
+					</StackPanel>
+
+					<!-- BUTTONS -->
+					<StackPanel Grid.Row="17" Margin="0,10,0,0">
+
+						<Button Content="Создать аккаунт"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding RegisterCommand}"/>
+
+						<Button Content="Назад"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding BackCommand}"/>
+
+					</StackPanel>
+
+				</Grid>
+
+			</ScrollViewer>
+
+		</Border>
+
+	</Grid>
+
+</Window>

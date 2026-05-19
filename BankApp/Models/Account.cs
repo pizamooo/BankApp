@@ -1,5 +1,4 @@
-﻿using static BankApp.ViewModels.TransfersViewModel;
-
+﻿
 namespace BankApp.Models
 {
     public class Account
@@ -13,7 +12,6 @@ namespace BankApp.Models
 
         // ДОБАВИМ (для UI)
         public string ClientName { get; set; }
-        public ClientType ClientType { get; set; }
 
         public override string ToString()
         {

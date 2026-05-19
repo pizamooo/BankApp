@@ -19,6 +19,7 @@ using Microsoft.Win32;
 using iText.Layout.Properties;
 using Table = iText.Layout.Element.Table;
 using iText.IO.Font;
+using BankApp.Services;
 
 namespace BankApp.ViewModels
 {
@@ -166,9 +167,29 @@ namespace BankApp.ViewModels
             {
                 conn.Open();
 
-                string query = "SELECT Id, AccountNumber, Balance, IsClosed FROM Accounts";
+                string query;
+
+                if (Session.CurrentUser.Role == "Admin" ||
+                    Session.CurrentUser.Role == "Operator")
+                {
+                    query = @"
+        SELECT Id, ClientId, AccountNumber, Balance, IsClosed
+        FROM Accounts";
+                }
+                else
+                {
+                    query = @"
+        SELECT Id, ClientId, AccountNumber, Balance, IsClosed
+        FROM Accounts
+        WHERE ClientId = @clientId";
+                }
 
                 SqlCommand cmd = new SqlCommand(query, conn);
+
+                if (Session.CurrentUser.Role == "Client")
+                {
+                    cmd.Parameters.AddWithValue("@clientId", Session.CurrentUser.Id);
+                }
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -176,10 +197,16 @@ namespace BankApp.ViewModels
                     Accounts.Add(new Account
                     {
                         Id = (int)reader["Id"],
+                        ClientId = (int)reader["ClientId"],
                         AccountNumber = reader["AccountNumber"].ToString(),
                         Balance = (decimal)reader["Balance"],
                         IsClosed = (bool)reader["IsClosed"]
                     });
+                }
+                if (SelectedAccount == null)
+                {
+                    SelectedAccount = Accounts
+                        .FirstOrDefault(a => !a.IsClosed);
                 }
             }
             SelectedAccount = Accounts.FirstOrDefault(x => x.Id == SelectedAccount?.Id);
@@ -196,13 +223,45 @@ namespace BankApp.ViewModels
             {
                 conn.Open();
 
-                string query = @"
-                SELECT t.Id, t.Amount, t.Type, t.Date, t.Description, a.AccountNumber
-                FROM Transactions t
-                JOIN Accounts a ON t.AccountId = a.Id
-                ORDER BY t.Date DESC";
+                string query;
+
+                if (Session.CurrentUser.Role == "Admin" ||
+                    Session.CurrentUser.Role == "Operator")
+                {
+                    query = @"
+    SELECT t.Id,
+           t.AccountId,
+           t.Amount,
+           t.Type,
+           t.Date,
+           t.Description,
+           a.AccountNumber
+    FROM Transactions t
+    JOIN Accounts a ON t.AccountId = a.Id
+    ORDER BY t.Date DESC";
+                }
+                else
+                {
+                    query = @"
+    SELECT t.Id,
+           t.AccountId,
+           t.Amount,
+           t.Type,
+           t.Date,
+           t.Description,
+           a.AccountNumber
+    FROM Transactions t
+    JOIN Accounts a ON t.AccountId = a.Id
+    WHERE a.ClientId = @clientId
+    ORDER BY t.Date DESC";
+                }
 
                 SqlCommand cmd = new SqlCommand(query, conn);
+
+                if (Session.CurrentUser.Role == "Client")
+                {
+                    cmd.Parameters.AddWithValue("@clientId", Session.CurrentUser.Id);
+                }
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -210,6 +269,7 @@ namespace BankApp.ViewModels
                     list.Add(new Transaction
                     {
                         Id = (int)reader["Id"],
+                        AccountId = (int)reader["AccountId"],
                         Amount = (decimal)reader["Amount"],
                         Type = reader["Type"].ToString() == "Income"
                             ? "Пополнение"
@@ -305,15 +365,15 @@ namespace BankApp.ViewModels
         // =========================
         private void AddTransaction()
         {
-            if (SelectedAccount.IsClosed)
-            {
-                MessageBox.Show("Счет закрыт! Операции запрещены.");
-                return;
-            }
-
             if (SelectedAccount == null)
             {
                 MessageBox.Show("Выберите счет!");
+                return;
+            }
+
+            if (SelectedAccount.IsClosed)
+            {
+                MessageBox.Show("Счет закрыт!");
                 return;
             }
 

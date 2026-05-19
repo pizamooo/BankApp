@@ -2,11 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BankApp"
-             StartupUri="MainWindow.xaml">
+             StartupUri="LoginWindow.xaml">
 	<Application.Resources>
 		<!-- Цвета -->
 		<SolidColorBrush  x:Key="PrimaryColor">#2D89EF</SolidColorBrush>
 		<SolidColorBrush  x:Key="SidebarColor">#1E1E2F</SolidColorBrush>
+		<BooleanToVisibilityConverter
+        x:Key="BoolToVisibilityConverter"/>
 
 		<!-- Кнопки -->
 		<Style TargetType="Button">

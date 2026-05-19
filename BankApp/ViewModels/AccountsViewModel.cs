@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using BankApp.Services;
 
 namespace BankApp.ViewModels
 {
@@ -171,7 +172,24 @@ namespace BankApp.ViewModels
             SqlConnection conn = DatabaseHelper.GetConnection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SELECT Id, FullName, Phone FROM Clients", conn);
+            string query;
+
+            if (Session.CurrentUser.Role == "Client")
+            {
+                query = "SELECT Id, FullName, Phone FROM Clients WHERE Id = @id";
+            }
+            else
+            {
+                query = "SELECT Id, FullName, Phone FROM Clients";
+            }
+
+            SqlCommand cmd = new SqlCommand(query, conn);
+
+            if (Session.CurrentUser.Role == "Client")
+            {
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+            }
+
             SqlDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
@@ -185,6 +203,7 @@ namespace BankApp.ViewModels
             }
 
             conn.Close();
+
             FilteredClients = new ObservableCollection<Client>(Clients);
         }
 
@@ -196,9 +215,28 @@ namespace BankApp.ViewModels
             SqlConnection conn = DatabaseHelper.GetConnection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand(@"
-                SELECT Id, AccountNumber, Balance, ClientId, IsClosed
-                FROM Accounts", conn);
+            string query;
+
+            if (Session.CurrentUser.Role == "Client")
+            {
+                query = @"
+            SELECT Id, AccountNumber, Balance, ClientId, IsClosed
+            FROM Accounts
+            WHERE ClientId = @clientId";
+            }
+            else
+            {
+                query = @"
+            SELECT Id, AccountNumber, Balance, ClientId, IsClosed
+            FROM Accounts";
+            }
+
+            SqlCommand cmd = new SqlCommand(query, conn);
+
+            if (Session.CurrentUser.Role == "Client")
+            {
+                cmd.Parameters.AddWithValue("@clientId", Session.CurrentUser.Id);
+            }
 
             SqlDataReader reader = cmd.ExecuteReader();
 

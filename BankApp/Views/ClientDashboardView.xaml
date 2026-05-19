@@ -1,0 +1,351 @@
+﻿<UserControl x:Class="BankApp.Views.ClientDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+			 xmlns:vm="clr-namespace:BankApp.ViewModels"
+			 Background="#F5F7FB">
+
+	<UserControl.DataContext>
+		<vm:ClientDashboardViewModel/>
+	</UserControl.DataContext>
+
+	<ScrollViewer VerticalScrollBarVisibility="Auto">
+
+		<StackPanel Margin="25">
+
+			<!-- HEADER -->
+			<StackPanel Margin="0,0,0,20">
+
+				<TextBlock Text="Добро пожаловать 👋"
+                           FontSize="16"
+                           Foreground="#64748B"/>
+
+				<TextBlock Text="{Binding UserName}"
+                           FontSize="30"
+                           FontWeight="Bold"
+                           Foreground="#111827"/>
+
+			</StackPanel>
+
+			<!-- BANK CARD -->
+			<Border Height="200"
+                    CornerRadius="20"
+                    Padding="25"
+                    Margin="0,0,0,25">
+
+				<Border.Background>
+
+					<LinearGradientBrush StartPoint="0,0"
+                                         EndPoint="1,1">
+
+						<GradientStop Color="#4338CA"
+                                      Offset="0"/>
+
+						<GradientStop Color="#6366F1"
+                                      Offset="1"/>
+
+					</LinearGradientBrush>
+
+				</Border.Background>
+
+				<Grid>
+
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+
+					<TextBlock Text="YOUR ACCOUNT"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               FontSize="20"/>
+
+					<StackPanel Grid.Row="1"
+                                VerticalAlignment="Center">
+
+						<TextBlock Text="{Binding BalanceText}"
+                                   Foreground="White"
+                                   FontSize="34"
+                                   FontWeight="Bold"/>
+
+						<TextBlock Text="Общий баланс"
+                                   Foreground="#E0E7FF"
+                                   FontSize="14"/>
+
+					</StackPanel>
+
+					<Grid Grid.Row="2">
+
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition/>
+							<ColumnDefinition/>
+						</Grid.ColumnDefinitions>
+
+
+						<StackPanel Grid.Column="0"
+                                    HorizontalAlignment="Left">
+
+							<TextBlock Text="IBAN"
+                                       Foreground="#C7D2FE"
+                                       FontSize="11"/>
+
+							<TextBlock Text="{Binding IBAN}"
+                                       Foreground="White"
+                                       FontSize="14"/>
+						</StackPanel>
+
+					</Grid>
+
+				</Grid>
+
+			</Border>
+
+			<!-- QUICK ACTIONS -->
+			<TextBlock Text="Быстрые действия"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,0,0,15"/>
+
+			<WrapPanel Margin="0,0,0,25">
+
+				<Button Width="160"
+						Height="80"
+						BorderThickness="1"
+						Margin="0,0,15,15"
+						Background="White"
+						BorderBrush="#1F2937"
+						Command="{Binding DataContext.OpenTransferFromDashboardCommand, 
+					RelativeSource={RelativeSource AncestorType=Window}}">
+
+					<StackPanel VerticalAlignment="Center">
+
+						<TextBlock Text="💸"
+								   Foreground="#1F2937"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"/>
+
+						<TextBlock Text="Перевод"
+								   FontWeight="SemiBold"
+								   Foreground="#1F2937"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0"/>
+
+					</StackPanel>
+
+				</Button>
+
+				<Button Width="160"
+                        Height="80"
+                        Margin="0,0,15,15"
+                        Background="White"
+                        BorderBrush="#1F2937"
+						Command="{Binding DataContext.OpenTopUpFromDashboardCommand,
+RelativeSource={RelativeSource AncestorType=Window}}">
+
+					<StackPanel VerticalAlignment="Center">
+
+						<TextBlock Text="📄"
+								   Foreground="#1F2937"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"/>
+
+						<TextBlock Text="Пополнение"
+								   Foreground="#1F2937"
+								   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0"/>
+
+					</StackPanel>
+
+				</Button>
+
+				<Button Width="160"
+                        Height="80"
+                        Margin="0,0,15,15"
+                        Background="White"
+                        BorderBrush="#E5E7EB">
+
+					<StackPanel VerticalAlignment="Center">
+
+						<TextBlock Text="⭐"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"/>
+
+						<TextBlock Text="Шаблоны"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0"/>
+
+					</StackPanel>
+
+				</Button>
+
+			</WrapPanel>
+
+			<TextBlock Text="Шаблоны платежей"
+           FontSize="20"
+           FontWeight="Bold"
+           Margin="0,0,0,15"/>
+
+			<WrapPanel Margin="0,0,0,25">
+
+				<ItemsControl ItemsSource="{Binding Templates}">
+
+					<ItemsControl.ItemsPanel>
+
+						<ItemsPanelTemplate>
+							<WrapPanel/>
+						</ItemsPanelTemplate>
+
+					</ItemsControl.ItemsPanel>
+
+					<ItemsControl.ItemTemplate>
+
+						<DataTemplate>
+
+							<Border Width="150"
+                        Height="80"
+                        Background="White"
+                        CornerRadius="12"
+                        Margin="0,0,15,15"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1">
+
+								<StackPanel VerticalAlignment="Center">
+
+									<TextBlock Text="{Binding Icon}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"/>
+
+									<TextBlock Text="{Binding Name}"
+                                   Margin="0,8,0,0"
+                                   HorizontalAlignment="Center"/>
+
+								</StackPanel>
+
+							</Border>
+
+						</DataTemplate>
+
+					</ItemsControl.ItemTemplate>
+
+				</ItemsControl>
+
+			</WrapPanel>
+
+			<!-- CHART -->
+			<TextBlock Text="Расходы за месяц"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,0,0,15"/>
+			<TextBlock Text="{Binding ChartTitle}"
+FontSize="16"
+FontWeight="Bold"
+Margin="0,0,0,10"/>
+
+			<Border Background="White"
+        CornerRadius="14"
+        Padding="20"
+        Margin="0,0,0,25">
+
+				<StackPanel>
+
+					<TextBlock Text="Доход / Расход"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Margin="0,0,0,10"/>
+
+					<ItemsControl ItemsSource="{Binding ChartBars}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal"/>
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<StackPanel Margin="6" Width="40">
+
+									<!-- доход -->
+									<Rectangle Width="20"
+                   Height="{Binding IncomeHeight}"
+                   Fill="#22C55E"
+                   RadiusX="4"
+                   RadiusY="4"
+                   VerticalAlignment="Bottom"/>
+
+									<!-- расход -->
+									<Rectangle Width="20"
+                   Height="{Binding ExpenseHeight}"
+                   Fill="#EF4444"
+                   RadiusX="4"
+                   RadiusY="4"
+                   VerticalAlignment="Bottom"/>
+
+									<!-- месяц -->
+									<TextBlock Text="{Binding Month}"
+                   FontSize="11"
+                   HorizontalAlignment="Center"
+                   Margin="0,5,0,0"/>
+								</StackPanel>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+
+				</StackPanel>
+
+			</Border>
+
+			<!-- LAST OPERATIONS -->
+			<TextBlock Text="Последние операции"
+           FontSize="20"
+           FontWeight="Bold"
+           Margin="0,0,0,15"/>
+
+			<Border Background="White"
+        CornerRadius="14"
+        Padding="10">
+
+				<ItemsControl ItemsSource="{Binding LastOperations}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Grid Margin="10">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition/>
+									<ColumnDefinition Width="Auto"/>
+								</Grid.ColumnDefinitions>
+
+								<StackPanel>
+									<TextBlock Text="{Binding Title}"
+                                   FontWeight="SemiBold"/>
+									<TextBlock Text="{Binding DateText}"
+                                   FontSize="12"
+                                   Foreground="#64748B"/>
+								</StackPanel>
+
+								<TextBlock Grid.Column="1"
+                               Text="{Binding AmountText}"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center">
+									<TextBlock.Style>
+										<Style TargetType="TextBlock">
+											<Setter Property="Foreground"
+                                        Value="#DC2626"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsIncome}"
+                                                 Value="True">
+													<Setter Property="Foreground"
+                                                Value="#16A34A"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TextBlock.Style>
+								</TextBlock>
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</Border>
+		</StackPanel>
+	</ScrollViewer>
+
+</UserControl>

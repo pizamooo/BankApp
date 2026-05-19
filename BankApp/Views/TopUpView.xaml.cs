@@ -1,5 +1,4 @@
-﻿using BankApp.Services;
-using BankApp.ViewModels;
+﻿using BankApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,21 +14,18 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace BankApp
+namespace BankApp.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для TopUpView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class TopUpView : UserControl
     {
-        public MainWindow()
+        public TopUpView()
         {
             InitializeComponent();
 
-            var vm = new MainViewModel();
-            DataContext = vm;
-
-            NavService.VM = vm;
+            DataContext = new TopUpViewModel();
         }
     }
 }

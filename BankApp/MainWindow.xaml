@@ -22,21 +22,21 @@
 		</Grid.RowDefinitions>
 
 		<!-- TOP BAR -->
-		<Border Background="#1F2937">
+		<Border Background="#1F2937" Grid.Row="0">
 			<Grid>
 
 				<TextBlock Text="🏦 Bank System (Diploma Project)"
-                           Foreground="White"
-                           FontSize="16"
-                           FontWeight="Bold"
-                           VerticalAlignment="Center"
-                           Margin="15"/>
+                       Foreground="White"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15"/>
 
 				<TextBlock Text="Совкомбанк - Demo"
-                           Foreground="#9CA3AF"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Center"
-                           Margin="0,0,15,0"/>
+                       Foreground="#9CA3AF"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Margin="0,0,15,0"/>
 			</Grid>
 		</Border>
 
@@ -54,72 +54,29 @@
 				<StackPanel Margin="10">
 
 					<TextBlock Text="МЕНЮ"
-                               Foreground="#9CA3AF"
-                               Margin="10"
-                               FontSize="12"/>
+                           Foreground="#9CA3AF"
+                           Margin="10"
+                           FontSize="12"/>
 
 					<Button Content="📊 Операции"
-                            Command="{Binding ShowTransactionsCommand}"/>
+                        Command="{Binding ShowTransactionsCommand}"
+                        Visibility="{Binding IsOperator,Converter={StaticResource BoolToVisibilityConverter}}"/>
 
 					<Button Content="🏦 Счета"
-                            Command="{Binding ShowAccountsCommand}"/>
+                        Command="{Binding ShowAccountsCommand}"
+                        Visibility="{Binding IsOperator,Converter={StaticResource BoolToVisibilityConverter}}"/>
+
 					<Button Content="Переводы"
-							Command="{Binding ShowTransfersCommand}"/>
+                        Command="{Binding ShowTransfersCommand}"
+                        Visibility="{Binding IsClient,Converter={StaticResource BoolToVisibilityConverter}}"/>
 
 				</StackPanel>
 
 			</Border>
 
 			<!-- CONTENT -->
-			<ScrollViewer Grid.Column="1">
-
-				<StackPanel Margin="20">
-
-					<!-- КАРТОЧКИ -->
-					<WrapPanel>
-
-						<Border Background="White"
-                                Width="220"
-                                Height="100"
-                                CornerRadius="8"
-                                Margin="10"
-                                Padding="10">
-
-							<StackPanel>
-								<TextBlock Text="Всего операций"
-                                           FontWeight="Bold"/>
-								<TextBlock Text="--"
-                                           FontSize="22"
-                                           Foreground="#2563EB"/>
-							</StackPanel>
-
-						</Border>
-
-						<Border Background="White"
-                                Width="220"
-                                Height="100"
-                                CornerRadius="8"
-                                Margin="10"
-                                Padding="10">
-
-							<StackPanel>
-								<TextBlock Text="Баланс"
-                                           FontWeight="Bold"/>
-								<TextBlock Text="-- ₽"
-                                           FontSize="22"
-                                           Foreground="Green"/>
-							</StackPanel>
-
-						</Border>
-
-					</WrapPanel>
-
-					<!-- VIEW -->
-					<ContentControl Content="{Binding CurrentView}"/>
-
-				</StackPanel>
-
-			</ScrollViewer>
+			<ContentControl Grid.Column="1"
+                        Content="{Binding CurrentView}" />
 
 		</Grid>
 
