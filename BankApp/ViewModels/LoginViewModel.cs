@@ -109,6 +109,116 @@ namespace BankApp.ViewModels
             OpenRegisterCommand = new RelayCommand(OpenRegister);
         }
 
+        private void SaveUserSession()
+        {
+            string deviceId =
+                DeviceService.GetDeviceId();
+
+            string deviceName =
+                DeviceService.GetDeviceName();
+
+            string location = GeoLocationService.GetLocation();
+
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                // убираем текущее устройство
+                var resetCmd = new SqlCommand(@"
+UPDATE UserSessions
+SET IsCurrent = 0
+WHERE UserId = @userId", conn);
+
+                resetCmd.Parameters.AddWithValue(
+                    "@userId",
+                    Session.CurrentUser.Id);
+
+                resetCmd.ExecuteNonQuery();
+
+                // ищем устройство
+                var checkCmd = new SqlCommand(@"
+SELECT Id
+FROM UserSessions
+WHERE UserId = @userId
+AND DeviceId = @deviceId", conn);
+
+                checkCmd.Parameters.AddWithValue(
+                    "@userId",
+                    Session.CurrentUser.Id);
+
+                checkCmd.Parameters.AddWithValue(
+                    "@deviceId",
+                    deviceId);
+
+                var existing =
+                    checkCmd.ExecuteScalar();
+
+                // если устройство уже есть
+                if (existing != null)
+                {
+                    var updateCmd = new SqlCommand(@"
+UPDATE UserSessions
+SET
+    LoginTime = GETDATE(),
+    LastActivity = GETDATE(),
+    IsActive = 1,
+    IsCurrent = 1
+WHERE Id = @id", conn);
+
+                    updateCmd.Parameters.AddWithValue(
+                        "@id",
+                        (int)existing);
+
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // первое устройство
+                    var insertCmd = new SqlCommand(@"
+INSERT INTO UserSessions
+(
+    UserId,
+    DeviceId,
+    DeviceName,
+    Location,
+    LoginTime,
+    LastActivity,
+    IsActive,
+    IsCurrent
+)
+VALUES
+(
+    @userId,
+    @deviceId,
+    @deviceName,
+    @location,
+    GETDATE(),
+    GETDATE(),
+    1,
+    1
+)", conn);
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@userId",
+                        Session.CurrentUser.Id);
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@deviceId",
+                        deviceId);
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@deviceName",
+                        deviceName);
+
+                    insertCmd.Parameters.AddWithValue(
+                        "@location",
+                        location);
+
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         private void Validate()
         {
             LoginError =
@@ -190,6 +300,8 @@ WHERE Login COLLATE Latin1_General_CS_AS = @login", conn);
                     Login = reader["Login"].ToString(),
                     Role = reader["Role"].ToString()
                 };
+
+                SaveUserSession();
             }
 
             MainWindow window = new MainWindow();

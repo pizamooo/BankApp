@@ -247,17 +247,22 @@
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\CardItem.cs" />
     <Compile Include="Models\Dashboard\ChartBarItem.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\Dashboard\AccountItem.cs" />
     <Compile Include="Models\Dashboard\OperationItem.cs" />
     <Compile Include="Models\Dashboard\TemplateItem.cs" />
+    <Compile Include="Models\TopUpHistoryItem.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Transfer.cs" />
     <Compile Include="Models\TransferHistoryItem.cs" />
+    <Compile Include="Models\UserSessionModel.cs" />
     <Compile Include="RegisterWindow.xaml.cs">
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\DeviceService.cs" />
+    <Compile Include="Services\GeoLocationService.cs" />
     <Compile Include="Services\NavService.cs" />
     <Compile Include="Services\PasswordHelper.cs" />
     <Compile Include="Services\Session.cs" />
@@ -278,8 +283,10 @@
     <Compile Include="ViewModels\ClientDashboardViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\OperatorDashboardViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
+    <Compile Include="ViewModels\SecurityViewModel.cs" />
     <Compile Include="ViewModels\TopUpViewModel.cs" />
     <Compile Include="ViewModels\TransactionsViewModel.cs" />
     <Compile Include="ViewModels\TransferViewModel.cs" />
@@ -288,6 +295,15 @@
     </Compile>
     <Compile Include="Views\ClientDashboardView.xaml.cs">
       <DependentUpon>ClientDashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OperatorDashboardView.xaml.cs">
+      <DependentUpon>OperatorDashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SecurityView.xaml.cs">
+      <DependentUpon>SecurityView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplatePaymentWindow.xaml.cs">
+      <DependentUpon>TemplatePaymentWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TopUpView.xaml.cs">
       <DependentUpon>TopUpView.xaml</DependentUpon>
@@ -334,6 +350,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ClientDashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OperatorDashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SecurityView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplatePaymentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

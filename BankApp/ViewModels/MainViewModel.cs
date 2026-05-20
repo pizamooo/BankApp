@@ -7,6 +7,16 @@ namespace BankApp.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        public GridLength SidebarWidth
+        {
+            get
+            {
+                return IsClient
+                    ? new GridLength(0)
+                    : new GridLength(220);
+            }
+        }
+
         private object _currentView;
 
         public object CurrentView
@@ -28,6 +38,7 @@ namespace BankApp.ViewModels
         public RelayCommand ShowTransfersCommand { get; set; }
         public RelayCommand OpenTransferFromDashboardCommand { get; set; }
         public RelayCommand OpenTopUpFromDashboardCommand { get; set; }
+        public RelayCommand OpenSecurityCommand { get; set; }
 
         private Stack<object> _history = new Stack<object>();
 
@@ -58,6 +69,10 @@ namespace BankApp.ViewModels
             {
                 Navigate(new TopUpView());
             });
+            OpenSecurityCommand = new RelayCommand(() =>
+            {
+                Navigate(new SecurityView());
+            });
 
             // старт
             switch (Session.CurrentUser.Role)
@@ -67,7 +82,7 @@ namespace BankApp.ViewModels
                     break;
 
                 case "Operator":
-                    CurrentView = new TransactionsView();
+                    CurrentView = new OperatorDashboardView();
                     break;
 
                 case "Client":

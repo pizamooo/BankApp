@@ -21,7 +21,8 @@
                            FontSize="30"
                            FontWeight="Bold"
                            Foreground="#111827"
-                           Margin="0,0,0,25"/>
+                           Margin="0,0,0,25"
+						   HorizontalAlignment="Center"/>
 
 				<!-- CARD -->
 				<Border Background="White"
@@ -183,7 +184,8 @@
 				<TextBlock Text="История переводов"
                            FontSize="24"
                            FontWeight="Bold"
-                           Margin="0,28,0,18"/>
+                           Margin="0,28,0,18"
+						   HorizontalAlignment="Center"/>
 
 				<ListBox ItemsSource="{Binding Transfers}"
                          BorderThickness="0"

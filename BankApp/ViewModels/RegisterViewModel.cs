@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System;
 using System.Windows.Input;
+using BankApp.Models;
 
 namespace BankApp.ViewModels
 {
@@ -347,11 +348,40 @@ VALUES
                     PasswordHelper.HashPassword(Password));
 
                 cmd.ExecuteNonQuery();
+
+                // получаем id нового пользователя
+                var getUserCmd = new SqlCommand(@"
+SELECT TOP 1 *
+FROM Clients
+WHERE Login = @login", conn);
+
+                getUserCmd.Parameters.AddWithValue("@login", Login);
+
+                var reader = getUserCmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    Session.CurrentUser = new Client
+                    {
+                        Id = (int)reader["Id"],
+                        FullName = reader["FullName"].ToString(),
+                        Phone = reader["Phone"].ToString(),
+                        Login = reader["Login"].ToString(),
+                        Role = reader["Role"].ToString()
+                    };
+                }
+
+                reader.Close();
+
+                // сохраняем устройство
+                SaveUserSession(Session.CurrentUser.Id);
             }
 
             MessageBox.Show("Регистрация завершена");
 
-            new LoginWindow().Show();
+            MainWindow window = new MainWindow();
+            window.Show();
+
             Application.Current.Windows[0]?.Close();
         }
 
@@ -363,6 +393,91 @@ VALUES
             Application.Current.Windows[0]?.Close();
         }
 
+        private void SaveUserSession(int userId)
+        {
+            string deviceId = DeviceService.GetDeviceId();
+
+            string deviceName = DeviceService.GetDeviceName();
+
+            string location = GeoLocationService.GetLocation();
+
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                // сбрасываем текущие устройства
+                var resetCmd = new SqlCommand(@"
+UPDATE UserSessions
+SET IsCurrent = 0
+WHERE UserId = @userId", conn);
+
+                resetCmd.Parameters.AddWithValue("@userId", userId);
+
+                resetCmd.ExecuteNonQuery();
+
+                // проверяем устройство
+                var checkCmd = new SqlCommand(@"
+SELECT Id
+FROM UserSessions
+WHERE UserId = @userId
+AND DeviceId = @deviceId", conn);
+
+                checkCmd.Parameters.AddWithValue("@userId", userId);
+                checkCmd.Parameters.AddWithValue("@deviceId", deviceId);
+
+                var existing = checkCmd.ExecuteScalar();
+
+                // если уже существует
+                if (existing != null)
+                {
+                    var updateCmd = new SqlCommand(@"
+UPDATE UserSessions
+SET
+    LoginTime = GETDATE(),
+    LastActivity = GETDATE(),
+    IsActive = 1,
+    IsCurrent = 1
+WHERE Id = @id", conn);
+
+                    updateCmd.Parameters.AddWithValue("@id", (int)existing);
+
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    var insertCmd = new SqlCommand(@"
+INSERT INTO UserSessions
+(
+    UserId,
+    DeviceId,
+    DeviceName,
+    Location,
+    LoginTime,
+    LastActivity,
+    IsActive,
+    IsCurrent
+)
+VALUES
+(
+    @userId,
+    @deviceId,
+    @deviceName,
+    @location,
+    GETDATE(),
+    GETDATE(),
+    1,
+    1
+)", conn);
+
+                    insertCmd.Parameters.AddWithValue("@userId", userId);
+                    insertCmd.Parameters.AddWithValue("@deviceId", deviceId);
+                    insertCmd.Parameters.AddWithValue("@deviceName", deviceName);
+                    insertCmd.Parameters.AddWithValue("@location", location);
+
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+        }
         private bool ValidateFullName(string fullName)
         {
             if (string.IsNullOrWhiteSpace(fullName))

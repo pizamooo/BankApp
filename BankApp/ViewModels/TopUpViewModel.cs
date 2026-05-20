@@ -1,5 +1,6 @@
 ﻿using BankApp;
 using BankApp.Data;
+using BankApp.Models;
 using BankApp.Models.Dashboard;
 using BankApp.Services;
 using BankApp.ViewModels;
@@ -14,8 +15,54 @@ namespace BankApp.ViewModels
 {
     public class TopUpViewModel : BaseViewModel
     {
+        public ObservableCollection<CardItem> Cards { get; set; }
         public ObservableCollection<AccountItem> Accounts { get; set; }
+        public ObservableCollection<TopUpHistoryItem> TopUpHistory { get; set; }
+        public string UserName => Session.CurrentUser.FullName?.ToUpper();
 
+        public decimal Commission
+        {
+            get
+            {
+                if (!decimal.TryParse(AmountText, out decimal amount))
+                    return 0;
+
+                return amount * 0.01m;
+            }
+        }
+
+        public decimal Total
+        {
+            get
+            {
+                if (!decimal.TryParse(AmountText, out decimal amount))
+                    return 0;
+
+                return amount + Commission;
+            }
+        }
+
+        private CardItem _selectedCard;
+        public CardItem SelectedCard
+        {
+            get => _selectedCard;
+            set
+            {
+                _selectedCard = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _cvv;
+        public string CVV
+        {
+            get => _cvv;
+            set
+            {
+                _cvv = value;
+                OnPropertyChanged();
+            }
+        }
         private AccountItem _selectedAccount;
         public AccountItem SelectedAccount
         {
@@ -27,7 +74,19 @@ namespace BankApp.ViewModels
         public string AmountText
         {
             get => _amountText;
-            set { _amountText = value; OnPropertyChanged(); }
+            set
+            {
+                if (value != null)
+                {
+                    value = value.Replace(".", ",");
+                }
+
+                _amountText = value;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Commission));
+                OnPropertyChanged(nameof(Total));
+            }
         }
 
         private string _info;
@@ -39,6 +98,9 @@ namespace BankApp.ViewModels
 
         public RelayCommand TopUpCommand { get; set; }
         public RelayCommand GoBackCommand { get; set; }
+        public RelayCommand Add1000Command { get; set; }
+        public RelayCommand Add5000Command { get; set; }
+        public RelayCommand Add10000Command { get; set; }
 
         public TopUpViewModel()
         {
@@ -46,8 +108,61 @@ namespace BankApp.ViewModels
 
             TopUpCommand = new RelayCommand(TopUp);
             GoBackCommand = new RelayCommand(GoBack);
+            Cards = new ObservableCollection<CardItem>();
+            TopUpHistory = new ObservableCollection<TopUpHistoryItem>();
+
+            Add1000Command = new RelayCommand(() => AddAmount(1000));
+            Add5000Command = new RelayCommand(() => AddAmount(5000));
+            Add10000Command = new RelayCommand(() => AddAmount(10000));
+
+            LoadCards();
 
             LoadAccounts();
+            LoadTopUpHistory();
+        }
+
+        private void AddAmount(decimal amount)
+        {
+            decimal current = 0;
+
+            decimal.TryParse(AmountText, out current);
+
+            AmountText = (current + amount).ToString();
+
+            OnPropertyChanged(nameof(AmountText));
+            OnPropertyChanged(nameof(Commission));
+        }
+
+        private void LoadCards()
+        {
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SqlCommand(@"
+SELECT c.*
+FROM Cards c
+JOIN Accounts a ON c.AccountId = a.Id
+WHERE a.ClientId = @id
+AND c.IsActive = 1", conn);
+
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Cards.Add(new CardItem
+                    {
+                        Id = (int)reader["Id"],
+                        AccountId = (int)reader["AccountId"],
+                        CardNumber = reader["CardNumber"].ToString(),
+                        ExpiryDate = Convert.ToDateTime(reader["ExpiryDate"]).ToString("MM'/'yy"),
+                        CVV = reader["CVV"].ToString(),
+                        IsActive = (bool)reader["IsActive"]
+                    });
+                }
+            }
         }
 
         private void LoadAccounts()
@@ -85,6 +200,41 @@ WHERE ClientId = @id AND IsClosed = 0", conn);
                 return;
             }
 
+            if (SelectedCard == null)
+            {
+                Info = "Выберите карту";
+                return;
+            }
+
+            if (!SelectedCard.IsActive)
+            {
+                Info = "Карта заблокирована";
+                return;
+            }
+
+            DateTime expiry =
+                DateTime.ParseExact(
+                    SelectedCard.ExpiryDate,
+                    "MM/yy",
+                    null);
+
+            expiry = new DateTime(
+                expiry.Year,
+                expiry.Month,
+                DateTime.DaysInMonth(expiry.Year, expiry.Month));
+
+            if (expiry < DateTime.Now.Date)
+            {
+                Info = "Срок действия карты истёк";
+                return;
+            }
+
+            if (CVV != SelectedCard.CVV)
+            {
+                Info = "Неверный CVV";
+                return;
+            }
+
             if (!decimal.TryParse(AmountText, out decimal amount) || amount <= 0)
             {
                 Info = "Введите корректную сумму";
@@ -104,10 +254,99 @@ WHERE Id = @id", conn);
                 cmd.Parameters.AddWithValue("@id", SelectedAccount.Id);
 
                 cmd.ExecuteNonQuery();
+
+                var transactionCmd = new SqlCommand(@"
+INSERT INTO Transactions
+(
+    AccountId,
+    Amount,
+    Type,
+    Category,
+    Description,
+    Date
+)
+VALUES
+(
+    @accountId,
+    @amount,
+    'Income',
+    'Deposit',
+    @desc,
+    GETDATE()
+)", conn);
+
+                transactionCmd.Parameters.AddWithValue("@accountId", SelectedAccount.Id);
+                transactionCmd.Parameters.AddWithValue("@amount", amount);
+                transactionCmd.Parameters.AddWithValue("@desc",
+                    "Пополнение с карты " + SelectedCard.MaskedCard);
+
+                transactionCmd.ExecuteNonQuery();
+
+                TopUpHistory.Insert(0, new TopUpHistoryItem
+                {
+                    Card = SelectedCard.MaskedCard,
+                    Amount = "+" + amount.ToString("N2") + " ₽",
+                    Date = DateTime.Now.ToString("dd.MM.yyyy HH:mm")
+                });
             }
+            SelectedAccount.Balance += amount;
 
             Info = $"✅ Пополнение на {amount:N2} ₽ выполнено";
+            ClientDashboardViewModel.Instance?.Refresh();
             AmountText = "";
+        }
+
+        private void LoadTopUpHistory()
+        {
+            TopUpHistory.Clear();
+
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SqlCommand(@"
+SELECT TOP 10
+    t.Amount,
+    t.Date,
+    t.Description
+FROM Transactions t
+JOIN Accounts a ON t.AccountId = a.Id
+WHERE a.ClientId = @id
+AND t.Category = 'Deposit'
+ORDER BY t.Date DESC", conn);
+
+                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string desc = reader["Description"].ToString();
+
+                    string card = "****";
+
+                    if (desc.Contains("карты"))
+                    {
+                        int index = desc.LastIndexOf(" ");
+
+                        if (index >= 0)
+                        {
+                            card = "**** **** **** " + desc.Substring(index + 1);
+                        }
+                    }
+
+                    TopUpHistory.Add(new TopUpHistoryItem
+                    {
+                        Card = card,
+                        Amount = "+" +
+                            Convert.ToDecimal(reader["Amount"])
+                            .ToString("N2") + " ₽",
+
+                        Date = Convert.ToDateTime(reader["Date"])
+                            .ToString("dd.MM.yyyy HH:mm")
+                    });
+                }
+            }
         }
 
         private void GoBack()

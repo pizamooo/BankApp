@@ -12,6 +12,29 @@ namespace BankApp.ViewModels
 {
     public class ClientDashboardViewModel : BaseViewModel
     {
+        private string _selectedPeriod = "За год";
+
+        public string SelectedPeriod
+        {
+            get => _selectedPeriod;
+            set
+            {
+                _selectedPeriod = value;
+
+                OnPropertyChanged();
+
+                LoadChart();
+            }
+        }
+
+        public List<string> Periods { get; set; } =
+            new List<string>
+        {
+    "За неделю",
+    "За месяц",
+    "За год"
+        };
+
         private decimal _balance;
 
         public decimal Balance
@@ -46,8 +69,35 @@ namespace BankApp.ViewModels
         public static ClientDashboardViewModel Instance { get; private set; }
 
 
-        public decimal TotalIncome { get; set; }
-        public decimal TotalExpense { get; set; }
+        private decimal _totalIncome;
+        public decimal TotalIncome
+        {
+            get => _totalIncome;
+            set
+            {
+                _totalIncome = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalIncomeText));
+            }
+        }
+
+        private decimal _totalExpense;
+        public decimal TotalExpense
+        {
+            get => _totalExpense;
+            set
+            {
+                _totalExpense = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalExpenseText));
+            }
+        }
+
+        public string TotalIncomeText =>
+            "+" + TotalIncome.ToString("N0") + " ₽";
+
+        public string TotalExpenseText =>
+            "-" + TotalExpense.ToString("N0") + " ₽";
 
         public string ChartTitle
         {
@@ -67,9 +117,11 @@ namespace BankApp.ViewModels
         public void Refresh()
         {
             LoadData();
+
             OnPropertyChanged(nameof(Balance));
             OnPropertyChanged(nameof(BalanceText));
             OnPropertyChanged(nameof(LastOperations));
+            OnPropertyChanged(nameof(ChartBars));
         }
 
         private void LoadData()
@@ -85,7 +137,26 @@ namespace BankApp.ViewModels
         // =========================
         private void LoadChart()
         {
+            string dateFilter = "";
+
+            if (SelectedPeriod == "За неделю")
+            {
+                dateFilter = "AND Date >= DATEADD(day, -7, GETDATE())";
+            }
+            else if (SelectedPeriod == "За месяц")
+            {
+                dateFilter = "AND Date >= DATEADD(month, -1, GETDATE())";
+            }
+            else
+            {
+                dateFilter = "AND YEAR(Date) = YEAR(GETDATE())";
+            }
+
             ChartBars.Clear();
+
+            // СБРОС
+            TotalIncome = 0;
+            TotalExpense = 0;
 
             SqlConnection conn = DatabaseHelper.GetConnection();
 
@@ -93,8 +164,9 @@ namespace BankApp.ViewModels
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+                SqlCommand cmd = new SqlCommand($@"
 SELECT 
+    MONTH(Date) AS MonthNumber,
     DATENAME(MONTH, Date) AS Month,
 
     SUM(CASE WHEN Category IN ('Deposit','TransferIn') 
@@ -105,9 +177,12 @@ SELECT
 
 FROM Transactions t
 INNER JOIN Accounts a ON t.AccountId = a.Id
+
 WHERE a.ClientId = @id
-GROUP BY DATENAME(MONTH, Date)
-ORDER BY MIN(Date)", conn);
+{dateFilter}
+
+GROUP BY MONTH(Date), DATENAME(MONTH, Date)
+ORDER BY MonthNumber", conn);
 
                 cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
 
@@ -128,6 +203,10 @@ ORDER BY MIN(Date)", conn);
                         ? Convert.ToDouble(reader["Expense"])
                         : 0;
 
+                    // ТЕПЕРЬ БУДЕТ ПРАВИЛЬНО
+                    TotalIncome += Convert.ToDecimal(income);
+                    TotalExpense += Convert.ToDecimal(expense);
+
                     string month = reader["Month"].ToString();
 
                     raw.Add(new Tuple<string, double, double>(
@@ -145,9 +224,13 @@ ORDER BY MIN(Date)", conn);
                 {
                     ChartBars.Add(new ChartBarItem
                     {
-                        Month = r.Item1,
-                        IncomeHeight = max == 0 ? 0 : (r.Item2 / max) * 100,
-                        ExpenseHeight = max == 0 ? 0 : (r.Item3 / max) * 100
+                        Month = r.Item1.Substring(0, 3),
+
+                        IncomeHeight =
+                            max == 0 ? 0 : (r.Item2 / max) * 120,
+
+                        ExpenseHeight =
+                            max == 0 ? 0 : (r.Item3 / max) * 120
                     });
                 }
             }
@@ -157,6 +240,8 @@ ORDER BY MIN(Date)", conn);
             }
 
             OnPropertyChanged(nameof(ChartBars));
+            OnPropertyChanged(nameof(TotalIncomeText));
+            OnPropertyChanged(nameof(TotalExpenseText));
         }
 
         // =========================
@@ -272,10 +357,78 @@ ORDER BY t.Date DESC", conn);
         {
             Templates.Clear();
 
-            Templates.Add(new TemplateItem { Name = "Мобильная связь", Icon = "📱" });
-            Templates.Add(new TemplateItem { Name = "Интернет", Icon = "🌐" });
-            Templates.Add(new TemplateItem { Name = "Коммуналка", Icon = "🏠" });
-            Templates.Add(new TemplateItem { Name = "Steam", Icon = "🎮" });
+            Templates.Add(new TemplateItem
+            {
+                Name = "Мобильная связь",
+                Icon = "📱",
+                Category = "Mobile",
+                Command = new RelayCommand(() =>
+                {
+                    OpenTemplatePayment(new TemplateItem
+                    {
+                        Name = "Мобильная связь",
+                        Icon = "📱",
+                        Category = "Mobile"
+                    });
+                })
+            });
+
+            Templates.Add(new TemplateItem
+            {
+                Name = "Интернет",
+                Icon = "🌐",
+                Category = "Internet",
+                Command = new RelayCommand(() =>
+                {
+                    OpenTemplatePayment(new TemplateItem
+                    {
+                        Name = "Интернет",
+                        Icon = "🌐",
+                        Category = "Internet",
+                    });
+                })
+            });
+
+            Templates.Add(new TemplateItem
+            {
+                Name = "Коммунальные услуги",
+                Icon = "🏠",
+                Category = "Housing",
+                Command = new RelayCommand(() =>
+                {
+                    OpenTemplatePayment(new TemplateItem
+                    {
+                        Name = "Коммунальные услуги",
+                        Icon = "🏠",
+                        Category = "Housing",
+                    });
+                })
+            });
+
+            Templates.Add(new TemplateItem
+            {
+                Name = "Steam",
+                Icon = "🎮",
+                Category = "Steam",
+                Command = new RelayCommand(() =>
+                {
+                    OpenTemplatePayment(new TemplateItem
+                    {
+                        Name = "Steam",
+                        Icon = "🎮",
+                        Category = "Steam",
+                    });
+                })
+            });
+        }
+
+        private void OpenTemplatePayment(TemplateItem template)
+        {
+            var window = new TemplatePaymentWindow(template);
+
+            window.ShowDialog();
+
+            Refresh();
         }
     }
 }

@@ -11,390 +11,395 @@
 		<conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 	</UserControl.Resources>
 
-	<Grid Margin="20">
 
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
-		</Grid.RowDefinitions>
+	<ScrollViewer Grid.Column="1"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+		<Grid Margin="20">
 
-		<!-- 🔷 Заголовок -->
-		<TextBlock Grid.Row="0" Text="Операции по счетам"
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+
+			<!-- 🔷 Заголовок -->
+			<TextBlock Grid.Row="0" Text="Операции по счетам"
                    FontSize="24"
                    FontWeight="Bold"
                    Margin="0 0 0 15"/>
 
-		<Border Grid.Row="1"
+			<Border Grid.Row="1"
         Background="#EEF2FF"
         CornerRadius="12"
         Padding="15"
         Margin="0 40 0 10">
 
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 
-				<TextBlock Text="Текущий баланс:"
+					<TextBlock Text="Текущий баланс:"
                    FontSize="16"
                    Foreground="Gray"
                    VerticalAlignment="Center"/>
 
-				<TextBlock Text="{Binding SelectedAccount.Balance, StringFormat={}{0:N2} ₽}"
+					<TextBlock Text="{Binding SelectedAccount.Balance, StringFormat={}{0:N2} ₽}"
                    FontSize="26"
                    FontWeight="Bold"
                    Margin="15 0 0 0"
                    Foreground="#2E7D32"/>
 
-			</StackPanel>
+				</StackPanel>
 
-		</Border>
+			</Border>
 
-		<Border Grid.Row="2"
+			<Border Grid.Row="2"
                 Background="White"
                 CornerRadius="10"
                 Padding="15"
                 Margin="0 0 0 10">
 
-			<StackPanel>
+				<StackPanel>
 
-				<TextBlock Text="Динамика операций"
+					<TextBlock Text="Динамика операций"
                            FontSize="16"
                            FontWeight="Bold"
                            Margin="0 0 0 10"/>
 
-				<TextBlock Text="Доходы" Foreground="Green" Margin="0 5"/>
-				<ItemsControl ItemsSource="{Binding IncomeChart}">
-					<ItemsControl.ItemTemplate>
-						<DataTemplate>
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="80"/>
-									<ColumnDefinition Width="*"/>
-								</Grid.ColumnDefinitions>
+					<TextBlock Text="Доходы" Foreground="Green" Margin="0 5"/>
+					<ItemsControl ItemsSource="{Binding IncomeChart}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="80"/>
+										<ColumnDefinition Width="*"/>
+									</Grid.ColumnDefinitions>
 
-								<TextBlock Text="{Binding Label}"/>
-								<ProgressBar Grid.Column="1"
+									<TextBlock Text="{Binding Label}"/>
+									<ProgressBar Grid.Column="1"
                                              Value="{Binding Value}"
                                              Maximum="10000"
                                              Height="12"
                                              Foreground="Green"/>
-							</Grid>
-						</DataTemplate>
-					</ItemsControl.ItemTemplate>
-				</ItemsControl>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
 
-				<TextBlock Text="Расходы" Foreground="Red" Margin="10 10 0 5"/>
-				<ItemsControl ItemsSource="{Binding ExpenseChart}">
-					<ItemsControl.ItemTemplate>
-						<DataTemplate>
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="80"/>
-									<ColumnDefinition Width="*"/>
-								</Grid.ColumnDefinitions>
+					<TextBlock Text="Расходы" Foreground="Red" Margin="10 10 0 5"/>
+					<ItemsControl ItemsSource="{Binding ExpenseChart}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="80"/>
+										<ColumnDefinition Width="*"/>
+									</Grid.ColumnDefinitions>
 
-								<TextBlock Text="{Binding Label}"/>
-								<ProgressBar Grid.Column="1"
+									<TextBlock Text="{Binding Label}"/>
+									<ProgressBar Grid.Column="1"
                                              Value="{Binding Value}"
                                              Maximum="10000"
                                              Height="12"
                                              Foreground="Red"/>
-							</Grid>
-						</DataTemplate>
-					</ItemsControl.ItemTemplate>
-				</ItemsControl>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
 
-			</StackPanel>
+				</StackPanel>
 
-		</Border>
+			</Border>
 
-		<WrapPanel Grid.Row="3" Margin="0 10 0 15">
+			<WrapPanel Grid.Row="3" Margin="0 10 0 15">
 
-			<!-- Доход -->
-			<Border Background="#E8F5E9"
+				<!-- Доход -->
+				<Border Background="#E8F5E9"
             CornerRadius="10"
             Padding="15"
             Margin="5"
             Width="200">
 
-				<StackPanel>
-					<TextBlock Text="Доход"
+					<StackPanel>
+						<TextBlock Text="Доход"
                        Foreground="Gray"/>
-					<TextBlock Text="{Binding TotalIncome}"
+						<TextBlock Text="{Binding TotalIncome}"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Green"/>
-				</StackPanel>
-			</Border>
+					</StackPanel>
+				</Border>
 
-			<!-- Расход -->
-			<Border Background="#FDECEA"
+				<!-- Расход -->
+				<Border Background="#FDECEA"
             CornerRadius="10"
             Padding="15"
             Margin="5"
             Width="200">
 
-				<StackPanel>
-					<TextBlock Text="Расход"
+					<StackPanel>
+						<TextBlock Text="Расход"
                        Foreground="Gray"/>
-					<TextBlock Text="{Binding TotalExpense}"
+						<TextBlock Text="{Binding TotalExpense}"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Red"/>
-				</StackPanel>
-			</Border>
+					</StackPanel>
+				</Border>
 
-			<!-- Кол-во операций -->
-			<Border Background="#E3F2FD"
+				<!-- Кол-во операций -->
+				<Border Background="#E3F2FD"
             CornerRadius="10"
             Padding="15"
             Margin="5"
             Width="200">
 
-				<StackPanel>
-					<TextBlock Text="Операций"
+					<StackPanel>
+						<TextBlock Text="Операций"
                        Foreground="Gray"/>
-					<TextBlock Text="{Binding Transactions.Count}"
+						<TextBlock Text="{Binding Transactions.Count}"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="#1976D2"/>
-				</StackPanel>
-			</Border>
-			<Button Content="📊 Excel"
+					</StackPanel>
+				</Border>
+				<Button Content="📊 Excel"
         Width="120"
         Command="{Binding ExportExcelCommand}"/>
-			<Button Content="📄 PDF"
+				<Button Content="📄 PDF"
         Width="120"
         Margin="10 0"
         Command="{Binding ExportPdfCommand}"/>
 
-		</WrapPanel>
+			</WrapPanel>
 
-		<!-- 🔷 Форма -->
-		<Border Grid.Row="4"
+			<!-- 🔷 Форма -->
+			<Border Grid.Row="4"
                 Background="White"
                 CornerRadius="10"
                 Padding="15"
                 Margin="0 0 0 15">
 
-			<StackPanel>
+				<StackPanel>
 
-				<TextBlock Text="Добавление операции"
+					<TextBlock Text="Добавление операции"
                            FontSize="16"
                            FontWeight="SemiBold"
                            Margin="0 0 0 10"/>
 
-				<WrapPanel>
+					<WrapPanel>
 
-					<!-- Счет -->
-					<StackPanel Margin="10">
-						<TextBlock Text="Счет"
+						<!-- Счет -->
+						<StackPanel Margin="10">
+							<TextBlock Text="Счет"
                                    FontSize="12"
                                    Foreground="Gray"/>
 
-						<ComboBox Width="220"
+							<ComboBox Width="220"
           ItemsSource="{Binding Accounts}"
           SelectedItem="{Binding SelectedAccount}"
           IsEditable="True"
           IsTextSearchEnabled="True">
 
-							<!-- Как отображается выбранный -->
-							<ComboBox.ItemTemplate>
-								<DataTemplate>
-									<StackPanel Orientation="Horizontal">
-										<TextBlock Text="{Binding AccountNumber}"/>
-										<TextBlock Text=" (закрыт)"
+								<!-- Как отображается выбранный -->
+								<ComboBox.ItemTemplate>
+									<DataTemplate>
+										<StackPanel Orientation="Horizontal">
+											<TextBlock Text="{Binding AccountNumber}"/>
+											<TextBlock Text=" (закрыт)"
                            Foreground="Red"
                            Margin="5 0 0 0"
                            Visibility="{Binding IsClosed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-									</StackPanel>
-								</DataTemplate>
-							</ComboBox.ItemTemplate>
+										</StackPanel>
+									</DataTemplate>
+								</ComboBox.ItemTemplate>
 
-							<!-- Блокировка закрытых -->
-							<ComboBox.ItemContainerStyle>
-								<Style TargetType="ComboBoxItem">
-									<Style.Triggers>
-										<DataTrigger Binding="{Binding IsClosed}" Value="True">
-											<Setter Property="IsEnabled" Value="False"/>
-											<Setter Property="Opacity" Value="0.5"/>
-										</DataTrigger>
-									</Style.Triggers>
-								</Style>
-							</ComboBox.ItemContainerStyle>
+								<!-- Блокировка закрытых -->
+								<ComboBox.ItemContainerStyle>
+									<Style TargetType="ComboBoxItem">
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding IsClosed}" Value="True">
+												<Setter Property="IsEnabled" Value="False"/>
+												<Setter Property="Opacity" Value="0.5"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</ComboBox.ItemContainerStyle>
 
-						</ComboBox>
-					</StackPanel>
+							</ComboBox>
+						</StackPanel>
 
-					<!-- Баланс -->
-					<StackPanel Margin="10">
-						<TextBlock Text="Баланс"
+						<!-- Баланс -->
+						<StackPanel Margin="10">
+							<TextBlock Text="Баланс"
                                    FontSize="12"
                                    Foreground="Gray"/>
 
-						<TextBlock Text="{Binding SelectedAccount.Balance, StringFormat={}{0} ₽}"
+							<TextBlock Text="{Binding SelectedAccount.Balance, StringFormat={}{0} ₽}"
                                    FontSize="14"
                                    FontWeight="Bold"
                                    Foreground="Green"/>
-						<TextBlock Margin="0 5 0 0"
+							<TextBlock Margin="0 5 0 0"
            FontWeight="Bold">
-							<TextBlock.Style>
-								<Style TargetType="TextBlock">
-									<Setter Property="Text" Value="Счет открыт"/>
-									<Setter Property="Foreground" Value="Green"/>
+								<TextBlock.Style>
+									<Style TargetType="TextBlock">
+										<Setter Property="Text" Value="Счет открыт"/>
+										<Setter Property="Foreground" Value="Green"/>
 
-									<Style.Triggers>
-										<DataTrigger Binding="{Binding SelectedAccount.IsClosed}" Value="True">
-											<Setter Property="Text" Value="Счет закрыт"/>
-											<Setter Property="Foreground" Value="Red"/>
-										</DataTrigger>
-									</Style.Triggers>
-								</Style>
-							</TextBlock.Style>
-						</TextBlock>
-					</StackPanel>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding SelectedAccount.IsClosed}" Value="True">
+												<Setter Property="Text" Value="Счет закрыт"/>
+												<Setter Property="Foreground" Value="Red"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</TextBlock.Style>
+							</TextBlock>
+						</StackPanel>
 
-					<!-- Сумма -->
-					<StackPanel Margin="10">
-						<TextBlock Text="Сумма"
+						<!-- Сумма -->
+						<StackPanel Margin="10">
+							<TextBlock Text="Сумма"
                                    FontSize="12"
                                    Foreground="Gray"/>
 
-						<TextBox Width="120"
+							<TextBox Width="120"
 								 Text="{Binding AmountInput}"
 								 ToolTip="Введите сумму (например 1000)"/>
-					</StackPanel>
+						</StackPanel>
 
-					<!-- Тип -->
-					<StackPanel Margin="10">
-						<TextBlock Text="Тип операции"
+						<!-- Тип -->
+						<StackPanel Margin="10">
+							<TextBlock Text="Тип операции"
                                    FontSize="12"
                                    Foreground="Gray"/>
 
-						<ComboBox Width="160"
+							<ComboBox Width="160"
           ItemsSource="{Binding OperationTypes}"
           SelectedItem="{Binding TypeInput}"/>
-					</StackPanel>
+						</StackPanel>
 
-					<!-- Описание -->
-					<StackPanel Margin="10">
-						<TextBlock Text="Описание"
+						<!-- Описание -->
+						<StackPanel Margin="10">
+							<TextBlock Text="Описание"
                                    FontSize="12"
                                    Foreground="Gray"/>
 
-						<TextBox Width="250"
+							<TextBox Width="250"
 								 Text="{Binding DescriptionInput}"
 								 ToolTip="Назначение операции"/>
-					</StackPanel>
+						</StackPanel>
 
-					<!-- Кнопка -->
-					<StackPanel Margin="10" VerticalAlignment="Bottom">
-						<Button Content="Добавить"
+						<!-- Кнопка -->
+						<StackPanel Margin="10" VerticalAlignment="Bottom">
+							<Button Content="Добавить"
                                 Width="150"
                                 Height="35"
                                 Command="{Binding AddTransactionCommand}"/>
-					</StackPanel>
+						</StackPanel>
 
-				</WrapPanel>
+					</WrapPanel>
 
-			</StackPanel>
+				</StackPanel>
 
-		</Border>
+			</Border>
 
-		<StackPanel Grid.Row="5"
+			<StackPanel Grid.Row="5"
             Orientation="Horizontal"
             Margin="0 10 0 10">
 
-			<TextBlock Text="С:" VerticalAlignment="Center" Margin="0 0 5 0"/>
-			<DatePicker SelectedDate="{Binding DateFrom}" Width="140"/>
+				<TextBlock Text="С:" VerticalAlignment="Center" Margin="0 0 5 0"/>
+				<DatePicker SelectedDate="{Binding DateFrom}" Width="140"/>
 
-			<TextBlock Text="По:" VerticalAlignment="Center" Margin="10 0 5 0"/>
-			<DatePicker SelectedDate="{Binding DateTo}" Width="140"/>
+				<TextBlock Text="По:" VerticalAlignment="Center" Margin="10 0 5 0"/>
+				<DatePicker SelectedDate="{Binding DateTo}" Width="140"/>
 
-			<Button Content="Фильтр"
+				<Button Content="Фильтр"
             Width="120"
             Margin="10 0"
             Command="{Binding FilterCommand}"/>
 
-			<Button Content="Сброс"
+				<Button Content="Сброс"
             Width="100"
             Margin="10 0"
             Command="{Binding ResetFilterCommand}"/>
 
-		</StackPanel>
+			</StackPanel>
 
-		<!-- 🔷 Таблица -->
-		<Border Grid.Row="6"
+			<!-- 🔷 Таблица -->
+			<Border Grid.Row="6"
                 Background="White"
                 CornerRadius="10"
                 Padding="10">
 
-			<DataGrid ItemsSource="{Binding Transactions}"
+				<DataGrid ItemsSource="{Binding Transactions}"
                       AutoGenerateColumns="False"
                       GridLinesVisibility="None"
                       RowHeight="35"
 					  IsReadOnly="True"
                       HeadersVisibility="Column">
 
-				<DataGrid.Columns>
+					<DataGrid.Columns>
 
-					<DataGridTextColumn Header="ID"
+						<DataGridTextColumn Header="ID"
                                         Binding="{Binding Id}"
                                         Width="60"/>
 
-					<DataGridTextColumn Header="Счет"
+						<DataGridTextColumn Header="Счет"
                                         Binding="{Binding AccountNumber}"
                                         Width="130"/>
 
-					<DataGridTextColumn Header="Сумма" Width="100">
-						<DataGridTextColumn.Binding>
-							<Binding Path="Amount"/>
-						</DataGridTextColumn.Binding>
+						<DataGridTextColumn Header="Сумма" Width="100">
+							<DataGridTextColumn.Binding>
+								<Binding Path="Amount"/>
+							</DataGridTextColumn.Binding>
 
-						<DataGridTextColumn.ElementStyle>
-							<Style TargetType="TextBlock">
-								<Style.Triggers>
+							<DataGridTextColumn.ElementStyle>
+								<Style TargetType="TextBlock">
+									<Style.Triggers>
 
-									<!-- ДОХОД -->
-									<DataTrigger Binding="{Binding Type}" Value="Пополнение">
-										<Setter Property="Foreground" Value="Green"/>
-										<Setter Property="FontWeight" Value="Bold"/>
-									</DataTrigger>
+										<!-- ДОХОД -->
+										<DataTrigger Binding="{Binding Type}" Value="Пополнение">
+											<Setter Property="Foreground" Value="Green"/>
+											<Setter Property="FontWeight" Value="Bold"/>
+										</DataTrigger>
 
-									<!-- РАСХОД -->
-									<DataTrigger Binding="{Binding Type}" Value="Списание">
-										<Setter Property="Foreground" Value="Red"/>
-										<Setter Property="FontWeight" Value="Bold"/>
-									</DataTrigger>
+										<!-- РАСХОД -->
+										<DataTrigger Binding="{Binding Type}" Value="Списание">
+											<Setter Property="Foreground" Value="Red"/>
+											<Setter Property="FontWeight" Value="Bold"/>
+										</DataTrigger>
 
-								</Style.Triggers>
-							</Style>
-						</DataGridTextColumn.ElementStyle>
-					</DataGridTextColumn>
+									</Style.Triggers>
+								</Style>
+							</DataGridTextColumn.ElementStyle>
+						</DataGridTextColumn>
 
-					<DataGridTextColumn Header="Тип"
+						<DataGridTextColumn Header="Тип"
                                         Binding="{Binding Type}"
                                         Width="130"/>
 
-					<DataGridTextColumn Header="Дата">
-						<DataGridTextColumn.Binding>
-							<Binding Path="Date"
+						<DataGridTextColumn Header="Дата">
+							<DataGridTextColumn.Binding>
+								<Binding Path="Date"
                                      StringFormat="dd.MM.yyyy HH:mm"/>
-						</DataGridTextColumn.Binding>
-					</DataGridTextColumn>
+							</DataGridTextColumn.Binding>
+						</DataGridTextColumn>
 
-					<DataGridTextColumn Header="Описание"
+						<DataGridTextColumn Header="Описание"
                                         Binding="{Binding Description}"
                                         Width="*"/>
 
-				</DataGrid.Columns>
+					</DataGrid.Columns>
 
-			</DataGrid>
+				</DataGrid>
 
-		</Border>
+			</Border>
 
-	</Grid>
+		</Grid>
+	</ScrollViewer>
 </UserControl>

@@ -118,7 +118,6 @@
 					RelativeSource={RelativeSource AncestorType=Window}}">
 
 					<StackPanel VerticalAlignment="Center">
-
 						<TextBlock Text="💸"
 								   Foreground="#1F2937"
                                    FontSize="24"
@@ -129,9 +128,7 @@
 								   Foreground="#1F2937"
                                    HorizontalAlignment="Center"
                                    Margin="0,5,0,0"/>
-
 					</StackPanel>
-
 				</Button>
 
 				<Button Width="160"
@@ -143,8 +140,7 @@
 RelativeSource={RelativeSource AncestorType=Window}}">
 
 					<StackPanel VerticalAlignment="Center">
-
-						<TextBlock Text="📄"
+						<TextBlock Text="💳"
 								   Foreground="#1F2937"
                                    FontSize="24"
                                    HorizontalAlignment="Center"/>
@@ -154,31 +150,30 @@ RelativeSource={RelativeSource AncestorType=Window}}">
 								   FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,5,0,0"/>
-
 					</StackPanel>
-
 				</Button>
 
 				<Button Width="160"
-                        Height="80"
-                        Margin="0,0,15,15"
-                        Background="White"
-                        BorderBrush="#E5E7EB">
+						Height="80"
+						Margin="0,0,15,15"
+						Background="White"
+						BorderBrush="#1F2937"
+						Command="{Binding DataContext.OpenSecurityCommand,RelativeSource={RelativeSource AncestorType=Window}}">
 
 					<StackPanel VerticalAlignment="Center">
+						<TextBlock Text="🔒"
+								   Foreground="#1F2937"
+								   FontSize="24"
+								   HorizontalAlignment="Center"/>
 
-						<TextBlock Text="⭐"
-                                   FontSize="24"
-                                   HorizontalAlignment="Center"/>
-
-						<TextBlock Text="Шаблоны"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,5,0,0"/>
+						<TextBlock Text="Безопасность"
+								   Foreground="#1F2937"
+								   FontWeight="SemiBold"
+								   HorizontalAlignment="Center"
+								   Margin="0,5,0,0"/>
 
 					</StackPanel>
-
 				</Button>
-
 			</WrapPanel>
 
 			<TextBlock Text="Шаблоны платежей"
@@ -189,7 +184,6 @@ RelativeSource={RelativeSource AncestorType=Window}}">
 			<WrapPanel Margin="0,0,0,25">
 
 				<ItemsControl ItemsSource="{Binding Templates}">
-
 					<ItemsControl.ItemsPanel>
 
 						<ItemsPanelTemplate>
@@ -197,50 +191,55 @@ RelativeSource={RelativeSource AncestorType=Window}}">
 						</ItemsPanelTemplate>
 
 					</ItemsControl.ItemsPanel>
-
 					<ItemsControl.ItemTemplate>
-
 						<DataTemplate>
 
-							<Border Width="150"
-                        Height="80"
-                        Background="White"
-                        CornerRadius="12"
-                        Margin="0,0,15,15"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1">
-
+							<Button Command="{Binding Command}"
+									CommandParameter="{Binding}"
+									Width="150"
+									Height="80"
+									Margin="0,0,15,15"
+									Background="White"
+									BorderBrush="#E5E7EB"
+									BorderThickness="1">
 								<StackPanel VerticalAlignment="Center">
 
 									<TextBlock Text="{Binding Icon}"
-                                   FontSize="24"
-                                   HorizontalAlignment="Center"/>
+											   FontSize="24"
+											   Foreground="Black"
+											   HorizontalAlignment="Center"/>
 
 									<TextBlock Text="{Binding Name}"
-                                   Margin="0,8,0,0"
-                                   HorizontalAlignment="Center"/>
-
+											   Margin="0,8,0,0"
+											   Foreground="Black"
+											   HorizontalAlignment="Center"/>
 								</StackPanel>
-
-							</Border>
-
+							</Button>
 						</DataTemplate>
-
 					</ItemsControl.ItemTemplate>
-
 				</ItemsControl>
 
 			</WrapPanel>
+			
 
 			<!-- CHART -->
-			<TextBlock Text="Расходы за месяц"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Margin="0,0,0,15"/>
 			<TextBlock Text="{Binding ChartTitle}"
-FontSize="16"
+FontSize="26"
 FontWeight="Bold"
 Margin="0,0,0,10"/>
+
+			<StackPanel Orientation="Horizontal"
+            Margin="0,0,0,15">
+
+				<TextBlock Text="Период:"
+               VerticalAlignment="Center"
+               Margin="0,0,10,0"
+               FontWeight="SemiBold"/>
+
+				<ComboBox Width="160"
+              SelectedItem="{Binding SelectedPeriod}"
+              ItemsSource="{Binding Periods}"/>
+			</StackPanel>
 
 			<Border Background="White"
         CornerRadius="14"
@@ -253,6 +252,50 @@ Margin="0,0,0,10"/>
                    FontSize="16"
                    FontWeight="Bold"
                    Margin="0,0,0,10"/>
+
+					<StackPanel Orientation="Horizontal"
+            Margin="0,0,0,15">
+
+						<Border Background="#DCFCE7"
+            CornerRadius="10"
+            Padding="10"
+            Margin="0,0,10,0">
+
+							<StackPanel>
+
+								<TextBlock Text="Доход"
+                       Foreground="#166534"
+                       FontWeight="SemiBold"/>
+
+								<TextBlock Text="{Binding TotalIncomeText}"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="#22C55E"/>
+
+							</StackPanel>
+
+						</Border>
+
+						<Border Background="#FEE2E2"
+            CornerRadius="10"
+            Padding="10">
+
+							<StackPanel>
+
+								<TextBlock Text="Расход"
+                       Foreground="#991B1B"
+                       FontWeight="SemiBold"/>
+
+								<TextBlock Text="{Binding TotalExpenseText}"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="#EF4444"/>
+
+							</StackPanel>
+
+						</Border>
+
+					</StackPanel>
 
 					<ItemsControl ItemsSource="{Binding ChartBars}">
 						<ItemsControl.ItemsPanel>

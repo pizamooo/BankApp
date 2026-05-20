@@ -1,0 +1,201 @@
+﻿<UserControl x:Class="BankApp.Views.SecurityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<Grid Background="#F5F7FB">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<ScrollViewer>
+
+			<StackPanel Width="500"
+                        Margin="25">
+
+				<!-- HEADER -->
+				<TextBlock Text="🔒 Безопасность"
+                           FontSize="30"
+                           FontWeight="Bold"
+                           Margin="0,0,0,25"/>
+
+				<!-- CHANGE PASSWORD -->
+				<Border Background="White"
+        CornerRadius="16"
+        Padding="20"
+        Margin="0,0,0,20">
+
+					<StackPanel>
+
+						<TextBlock Text="Смена пароля"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Margin="0,0,0,15"/>
+
+						<!-- CURRENT -->
+						<TextBlock Text="Текущий пароль"/>
+
+						<TextBox Text="{Binding CurrentPassword,
+                                UpdateSourceTrigger=PropertyChanged}"
+                 Height="40"
+								 FontSize="18"
+								 VerticalContentAlignment="Center"
+                 Margin="0,5,0,15"/>
+
+						<!-- NEW -->
+						<TextBlock Text="Новый пароль"/>
+
+						<PasswordBox x:Name="NewPasswordBox"
+                     Height="40"
+                     Margin="0,5,0,15"
+									 FontSize="18"
+									 VerticalContentAlignment="Center"
+                     PasswordChanged="NewPasswordBox_PasswordChanged"/>
+
+						<!-- REPEAT -->
+						<TextBlock Text="Повторите пароль"/>
+
+						<PasswordBox x:Name="RepeatPasswordBox"
+                     Height="40"
+                     Margin="0,5,0,20"
+									 FontSize="18"
+									 VerticalContentAlignment="Center"
+                     PasswordChanged="RepeatPasswordBox_PasswordChanged"/>
+
+						<!-- RULES -->
+						<Border Background="#EFF6FF"
+                CornerRadius="10"
+                Padding="10"
+                Margin="0,0,0,15">
+
+							<TextBlock Text="• Минимум 6 символов"
+                       Foreground="#1D4ED8"/>
+						</Border>
+
+						<!-- INFO -->
+
+						<!-- BUTTON -->
+						<Button Content="Изменить пароль"
+                Height="45"
+                Background="#2563EB"
+                Foreground="White"
+                FontWeight="Bold"
+								Click="ChangePasswordButton_Click"/>
+						
+						<TextBlock Text="{Binding Info}"
+                   Foreground="#DC2626"
+                   FontWeight="SemiBold"
+                   Margin="0,20,0,15"/>
+
+					</StackPanel>
+
+				</Border>
+
+				<!-- LOGIN HISTORY -->
+				<Border Background="White"
+                        CornerRadius="16"
+                        Padding="20">
+
+					<StackPanel>
+
+						<TextBlock Text="История входов"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,15"/>
+
+						<ListView ItemsSource="{Binding Sessions}">
+							<ListView.ItemTemplate>
+								<DataTemplate>
+									<Border Background="#F8FAFC"
+                    Padding="12"
+                    Margin="0,0,0,10"
+                    CornerRadius="10">
+
+										<StackPanel>
+
+											<StackPanel Orientation="Horizontal">
+												<TextBlock FontWeight="Bold">
+													<Run Text="💻 "/>											
+													<Run Text="{Binding DeviceName}"/>
+												</TextBlock>
+
+												<TextBlock Text="  •  "
+                                   Foreground="Gray"/>
+
+												<TextBlock Foreground="Gray">
+													<Run Text="📍 "/>
+													<Run Text="{Binding Location}"/>
+												</TextBlock>
+											</StackPanel>
+
+											<TextBlock Foreground="Gray">
+												<Run Text="🕒 "/>
+												<Run Text="{Binding LoginTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+											</TextBlock>
+
+											<TextBlock Foreground="Green"
+													   FontWeight="Bold">
+												<TextBlock.Style>
+													<Style TargetType="TextBlock">
+														<Setter Property="Visibility"
+																Value="Collapsed"/>
+														<Style.Triggers>
+															<DataTrigger Binding="{Binding IsCurrent}"
+																		 Value="True">
+
+																<Setter Property="Visibility"
+																		Value="Visible"/>
+
+																<Setter Property="Text"
+																		Value="🟢 Текущее устройство"/>
+															</DataTrigger>
+														</Style.Triggers>
+													</Style>
+												</TextBlock.Style>
+											</TextBlock>
+
+										</StackPanel>
+
+									</Border>
+								</DataTemplate>
+							</ListView.ItemTemplate>
+						</ListView>
+
+						<Button Content="Выйти со всех других устройств"
+                                Height="45"
+                                Background="#DC2626"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Margin="0,10,0,0"
+								Command="{Binding LogoutAllDevice}"/>
+
+					</StackPanel>
+
+				</Border>
+
+			</StackPanel>
+
+		</ScrollViewer>
+
+		<!-- BACK BUTTON -->
+		<Border Grid.Row="1"
+        Background="White"
+        Padding="18"
+        BorderBrush="#E5E7EB"
+        BorderThickness="1,1,0,0">
+
+			<Button Content="← Назад"
+            Width="140"
+            Height="42"
+            FontWeight="Bold"
+            Background="#2563EB"
+            Foreground="White"
+            BorderThickness="0"
+            Cursor="Hand"
+            Command="{Binding GoBackCommand}"/>
+
+		</Border>
+
+	</Grid>
+
+</UserControl>

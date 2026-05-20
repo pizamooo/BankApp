@@ -9,74 +9,354 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<ScrollViewer>
+		<!-- MAIN -->
+		<ScrollViewer x:Name="MainScroll" VerticalScrollBarVisibility="Auto">
 
-			<StackPanel Width="430" Margin="25">
+			<StackPanel Width="430"
+                        Margin="25">
 
 				<!-- HEADER -->
 				<TextBlock Text="💳 Пополнение счёта"
                            FontSize="30"
                            FontWeight="Bold"
+                           Foreground="#111827"
                            Margin="0,0,0,25"/>
 
-				<!-- CARD -->
+				<!-- CARD PREVIEW -->
+				<Border Height="210"
+                        CornerRadius="22"
+                        Padding="24"
+                        Margin="0,0,0,20">
+
+					<Border.Background>
+
+						<LinearGradientBrush StartPoint="0,0"
+                                             EndPoint="1,1">
+
+							<GradientStop Color="#1E293B"
+                                          Offset="0"/>
+
+							<GradientStop Color="#334155"
+                                          Offset="1"/>
+
+						</LinearGradientBrush>
+
+					</Border.Background>
+
+					<Grid>
+
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="Auto"/>
+						</Grid.RowDefinitions>
+
+						<!-- TOP -->
+						<DockPanel>
+
+							<TextBlock Text="💳 BANK CARD"
+                                       Foreground="White"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       DockPanel.Dock="Left"/>
+
+							<Border Background="#22C55E"
+                                    CornerRadius="10"
+                                    Padding="10,4"
+                                    HorizontalAlignment="Right">
+
+								<TextBlock Text="ACTIVE"
+                                           Foreground="White"
+                                           FontSize="11"
+                                           FontWeight="Bold"/>
+
+							</Border>
+
+						</DockPanel>
+
+						<!-- CARD NUMBER -->
+						<StackPanel Grid.Row="1"
+                                    VerticalAlignment="Center">
+
+							<TextBlock Text="{Binding SelectedCard.MaskedCard}"
+                                       Foreground="White"
+                                       FontSize="28"
+                                       FontWeight="Bold"/>
+
+							<TextBlock Text="Virtual / Debit"
+                                       Foreground="#CBD5E1"
+                                       Margin="0,10,0,0"/>
+
+						</StackPanel>
+
+						<!-- BOTTOM -->
+						<Grid Grid.Row="2">
+
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition/>
+								<ColumnDefinition/>
+							</Grid.ColumnDefinitions>
+
+							<StackPanel>
+
+								<TextBlock Text="VALID THRU"
+                                           Foreground="#94A3B8"
+                                           FontSize="10"/>
+
+								<TextBlock Text="{Binding SelectedCard.ExpiryDate}"
+                                           Foreground="White"
+                                           FontWeight="SemiBold"/>
+							</StackPanel>
+
+							<StackPanel Grid.Column="1"
+                                        HorizontalAlignment="Right">
+
+								<TextBlock Text="CARD HOLDER"
+                                           Foreground="#94A3B8"
+                                           FontSize="10"/>
+
+								<TextBlock Text="{Binding UserName}"
+                                           Foreground="White"
+                                           FontWeight="SemiBold"/>
+							</StackPanel>
+
+						</Grid>
+
+					</Grid>
+
+				</Border>
+
+				<!-- FORM -->
 				<Border Background="White"
                         CornerRadius="18"
                         Padding="20">
 
 					<StackPanel>
 
-						<TextBlock Text="Выберите счёт"
-                                   FontWeight="SemiBold"/>
+						<!-- ACCOUNT -->
+						<TextBlock Text="Счёт пополнения"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
 
 						<ComboBox ItemsSource="{Binding Accounts}"
                                   SelectedItem="{Binding SelectedAccount}"
                                   DisplayMemberPath="Iban"
                                   Height="42"
-                                  Margin="0,6,0,15"/>
+                                  FontSize="14"
+                                  Margin="0,0,0,16"/>
 
+						<!-- CARD -->
+						<TextBlock Text="Карта списания"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
+
+						<ComboBox ItemsSource="{Binding Cards}"
+                                  SelectedItem="{Binding SelectedCard}"
+                                  DisplayMemberPath="MaskedCard"
+                                  Height="42"
+                                  FontSize="14"
+                                  Margin="0,0,0,16"/>
+
+						<!-- CVV -->
+						<TextBlock Text="CVV код"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
+
+						<PasswordBox x:Name="CvvBox"
+									 PasswordChanged="CvvBox_PasswordChanged"
+									 Height="42"
+									 FontSize="16"
+									 Padding="10"
+									 MaxLength="3"
+									 Margin="0,0,0,16"/>
+
+						<!-- AMOUNT -->
 						<TextBlock Text="Сумма пополнения"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
 
-						<TextBox Text="{Binding AmountText}"
-                                 Height="42"
-                                 Padding="10"
-                                 Margin="0,6,0,15"/>
+						<TextBox Text="{Binding AmountText,UpdateSourceTrigger=PropertyChanged}"
+								 PreviewTextInput="AmountBox_PreviewTextInput"
+								 Height="42"
+								 FontSize="16"
+								 Padding="10"
+								 Margin="0,0,0,16"/>
 
-						<Button Content="Пополнить"
+						<!-- FAST AMOUNTS -->
+						<WrapPanel Margin="0,0,0,18">
+
+							<Button Content="+1000 ₽"
+									Command="{Binding Add1000Command}"
+                                    Width="110"
+                                    Height="38"
+                                    Margin="0,0,10,10"
+                                    FontWeight="SemiBold"/>
+
+							<Button Content="+5000 ₽"
+									Command="{Binding Add5000Command}"
+                                    Width="110"
+                                    Height="38"
+                                    Margin="0,0,10,10"
+                                    FontWeight="SemiBold"/>
+
+							<Button Content="+10000 ₽"
+									Command="{Binding Add10000Command}"
+                                    Width="110"
+                                    Height="38"
+                                    Margin="0,0,10,10"
+                                    FontWeight="SemiBold"/>
+
+						</WrapPanel>
+
+						<!-- INFO BLOCK -->
+						<Border Background="#F8FAFC"
+                                CornerRadius="12"
+                                Padding="14"
+                                Margin="0,0,0,16">
+
+							<StackPanel>
+
+								<DockPanel Margin="0,0,0,8">
+
+									<TextBlock Text="Комиссия"
+                                               Foreground="#64748B"/>
+
+									<TextBlock Text="{Binding Commission,
+										StringFormat={}{0:N2} ₽}"
+											   FontWeight="Bold"
+											   HorizontalAlignment="Right"/>
+
+								</DockPanel>
+								<DockPanel Margin="0,8,0,0">
+
+									<TextBlock Text="Итого"
+											   FontWeight="Bold"/>
+
+									<TextBlock Text="{Binding Total,StringFormat={}{0:N2} ₽}"
+											   FontWeight="Bold"
+											   Foreground="#2563EB"
+											   HorizontalAlignment="Right"/>
+								</DockPanel>
+
+								<DockPanel>
+
+									<TextBlock Text="Зачисление"
+                                               FontWeight="Bold"/>
+
+									<TextBlock Text="Мгновенно"
+                                               FontWeight="Bold"
+                                               Foreground="#16A34A"
+                                               HorizontalAlignment="Right"/>
+
+								</DockPanel>
+
+							</StackPanel>
+
+						</Border>
+
+						<!-- INFO -->
+						<TextBlock Text="{Binding Info}"
+                                   Foreground="#DC2626"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,14"/>
+
+						<!-- BUTTON -->
+						<Button Content="Пополнить счёт"
                                 Height="48"
+                                FontSize="15"
+                                FontWeight="Bold"
                                 Background="#2563EB"
                                 Foreground="White"
-                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand"
                                 Command="{Binding TopUpCommand}"/>
-
-						<TextBlock Text="{Binding Info}"
-                                   Margin="0,15,0,0"
-                                   Foreground="#DC2626"
-                                   FontWeight="SemiBold"/>
 
 					</StackPanel>
 
+				</Border>
+
+				<!-- HISTORY -->
+				<TextBlock Text="История пополнений"
+           FontSize="20"
+           FontWeight="Bold"
+           Margin="0,25,0,15"/>
+
+				<Border Background="White"
+        CornerRadius="18"
+        Padding="10">
+
+					<ItemsControl ItemsSource="{Binding TopUpHistory}">
+
+						<ItemsControl.ItemTemplate>
+
+							<DataTemplate>
+
+								<Grid Margin="10">
+
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+
+									<StackPanel>
+
+										<TextBlock Text="{Binding Card}"
+                                   FontWeight="SemiBold"/>
+
+										<TextBlock Text="{Binding Date}"
+                                   FontSize="12"
+                                   Foreground="#64748B"/>
+
+									</StackPanel>
+
+									<TextBlock Grid.Column="1"
+                               Text="{Binding Amount}"
+                               FontWeight="Bold"
+                               Foreground="#16A34A"
+                               VerticalAlignment="Center"/>
+
+								</Grid>
+
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
 				</Border>
 
 			</StackPanel>
 
 		</ScrollViewer>
 
-		<!-- BACK -->
+		<!-- BACK BUTTON -->
 		<Border Grid.Row="1"
                 Background="White"
-                Padding="18">
+                Padding="18"
+                BorderBrush="#E5E7EB"
+                BorderThickness="1,1,0,0">
 
 			<Button Content="← Назад"
                     Width="140"
-					FontWeight="Bold"
                     Height="42"
+                    FontWeight="Bold"
                     Background="#2563EB"
                     Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand"
                     Command="{Binding GoBackCommand}"/>
 
 		</Border>
-
+		<Button Content="↑"
+				Width="44"
+				Height="44"
+				FontSize="20"
+				FontWeight="Bold"
+				Background="#2563EB"
+				Foreground="White"
+				BorderThickness="0"
+				Cursor="Hand"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Bottom"
+				Margin="0,0,20,10"
+				Click="ScrollToTop_Click"/>
 	</Grid>
+
 </UserControl>
