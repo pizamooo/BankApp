@@ -36,6 +36,7 @@ namespace BankApp.ViewModels
         public RelayCommand ShowTransactionsCommand { get; set; }
         public RelayCommand ShowAccountsCommand { get; set; }
         public RelayCommand ShowTransfersCommand { get; set; }
+        public RelayCommand ShowDashboardCommand { get; set; }
         public RelayCommand OpenTransferFromDashboardCommand { get; set; }
         public RelayCommand OpenTopUpFromDashboardCommand { get; set; }
         public RelayCommand OpenSecurityCommand { get; set; }
@@ -44,6 +45,8 @@ namespace BankApp.ViewModels
 
         public MainViewModel()
         {
+            ShowDashboardCommand = new RelayCommand(OpenDashboard);
+
             NavService.VM = this;
             ShowTransactionsCommand = new RelayCommand(() =>
             {
@@ -93,6 +96,11 @@ namespace BankApp.ViewModels
                     MessageBox.Show("Неизвестная роль");
                     break;
             }
+        }
+
+        private void OpenDashboard()
+        {
+            CurrentView = new OperatorDashboardView();
         }
 
         // =====================

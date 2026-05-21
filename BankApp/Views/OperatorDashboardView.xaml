@@ -176,9 +176,9 @@
                               AutoGenerateColumns="False"
                               HeadersVisibility="Column"
                               CanUserAddRows="False"
+							  GridLinesVisibility="None"
                               IsReadOnly="True"
                               BorderThickness="0"
-                              GridLinesVisibility="Horizontal"
                               RowHeight="42"
                               FontSize="14"
                               Background="White">

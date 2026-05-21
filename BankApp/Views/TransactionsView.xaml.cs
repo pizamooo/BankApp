@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,9 +21,30 @@ namespace BankApp.Views
     /// </summary>
     public partial class TransactionsView : UserControl
     {
+        private static readonly Regex _regex = new Regex(@"^[0-9]+([.,][0-9]{0,2})?$");
         public TransactionsView()
         {
             InitializeComponent();
+        }
+
+        private void Amount_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            string fullText = textBox.Text.Insert(
+                textBox.SelectionStart,
+                e.Text);
+
+            e.Handled = !_regex.IsMatch(fullText);
+        }
+
+        private void Amount_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // запрещаем пробел
+            if (e.Key == Key.Space)
+            {
+                e.Handled = true;
+            }
         }
     }
 }

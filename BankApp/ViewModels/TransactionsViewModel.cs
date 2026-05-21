@@ -50,6 +50,41 @@ namespace BankApp.ViewModels
             set { _accounts = value; OnPropertyChanged(); }
         }
 
+        private Transaction _selectedTransaction;
+        public Transaction SelectedTransaction
+        {
+            get => _selectedTransaction;
+            set
+            {
+                _selectedTransaction = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isCanceled;
+        public bool IsCanceled
+        {
+            get => _isCanceled;
+            set
+            {
+                _isCanceled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+
+                ApplyCurrentAccountFilter();
+            }
+        }
+
         private Account _selectedAccount;
         public Account SelectedAccount
         {
@@ -83,6 +118,8 @@ namespace BankApp.ViewModels
         public RelayCommand ResetFilterCommand { get; set; }
         public RelayCommand ExportExcelCommand { get; set; }
         public RelayCommand ExportPdfCommand { get; set; }
+
+        public RelayCommand CancelTransactionCommand { get; set; }
 
         // =========================
         // INPUT
@@ -149,16 +186,94 @@ namespace BankApp.ViewModels
             ResetFilterCommand = new RelayCommand(ResetFilter);
             ExportExcelCommand = new RelayCommand(ExportExcel);
             ExportPdfCommand = new RelayCommand(ExportPdf);
-
+            CancelTransactionCommand = new RelayCommand(CancelTransaction);
             AddTransactionCommand = new RelayCommand(AddTransaction);
 
             LoadAccounts();
             LoadTransactions();
         }
 
-        // =========================
-        // LOAD ACCOUNTS
-        // =========================
+        private void CancelTransaction()
+        {
+            if (SelectedTransaction == null)
+            {
+                MessageBox.Show("Выберите операцию!");
+                return;
+            }
+
+            if (SelectedTransaction.IsCanceled)
+            {
+                MessageBox.Show("Операция уже отменена!");
+                return;
+            }
+
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                // отменяем операцию
+                string cancelQuery =
+                    @"UPDATE Transactions
+              SET IsCanceled = 1
+              WHERE Id = @Id";
+
+                SqlCommand cancelCmd = new SqlCommand(cancelQuery, conn);
+                cancelCmd.Parameters.AddWithValue("@Id", SelectedTransaction.Id);
+                cancelCmd.ExecuteNonQuery();
+
+                if (SelectedTransaction.Type == "Пополнение")
+                {
+                    string balanceQuery =
+                        "SELECT Balance FROM Accounts WHERE Id = @Id";
+
+                    SqlCommand balanceCheck = new SqlCommand(balanceQuery, conn);
+
+                    balanceCheck.Parameters.AddWithValue("@Id",
+                        SelectedTransaction.AccountId);
+
+                    decimal currentBalance =
+                        Convert.ToDecimal(balanceCheck.ExecuteScalar());
+
+                    if (currentBalance < SelectedTransaction.Amount)
+                    {
+                        MessageBox.Show(
+                            "Нельзя отменить операцию. Недостаточно средств для возврата!");
+
+                        return;
+                    }
+                }
+
+                // возврат баланса
+                string updateBalance;
+
+                if (SelectedTransaction.Type == "Пополнение")
+                {
+                    updateBalance =
+                        @"UPDATE Accounts
+                  SET Balance = Balance - @Amount
+                  WHERE Id = @AccountId";
+                }
+                else
+                {
+                    updateBalance =
+                        @"UPDATE Accounts
+                  SET Balance = Balance + @Amount
+                  WHERE Id = @AccountId";
+                }
+
+                SqlCommand balanceCmd = new SqlCommand(updateBalance, conn);
+
+                balanceCmd.Parameters.AddWithValue("@Amount", SelectedTransaction.Amount);
+                balanceCmd.Parameters.AddWithValue("@AccountId", SelectedTransaction.AccountId);
+
+                balanceCmd.ExecuteNonQuery();
+            }
+
+            MessageBox.Show("Операция отменена!");
+
+            LoadAccounts();
+            LoadTransactions();
+        }
         private void LoadAccounts()
         {
             Accounts = new ObservableCollection<Account>();
@@ -235,6 +350,7 @@ namespace BankApp.ViewModels
            t.Type,
            t.Date,
            t.Description,
+t.IsCanceled,
            a.AccountNumber
     FROM Transactions t
     JOIN Accounts a ON t.AccountId = a.Id
@@ -249,6 +365,7 @@ namespace BankApp.ViewModels
            t.Type,
            t.Date,
            t.Description,
+t.IsCanceled,
            a.AccountNumber
     FROM Transactions t
     JOIN Accounts a ON t.AccountId = a.Id
@@ -276,6 +393,7 @@ namespace BankApp.ViewModels
                             : "Списание",
                         Date = (DateTime)reader["Date"],
                         Description = reader["Description"].ToString(),
+                        IsCanceled = reader["IsCanceled"] != DBNull.Value && Convert.ToBoolean(reader["IsCanceled"]),
                         AccountNumber = reader["AccountNumber"].ToString()
                     });
                 }
@@ -304,6 +422,13 @@ namespace BankApp.ViewModels
             if (DateTo != null)
                 data = data.Where(x => x.Date <= DateTo.Value);
 
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                data = data.Where(x =>
+                    x.Description != null &&
+                    x.Description.ToLower().Contains(SearchText.ToLower()));
+            }
+
             Transactions = new ObservableCollection<Transaction>(data);
             OnPropertyChanged(nameof(Transactions));
 
@@ -317,6 +442,7 @@ namespace BankApp.ViewModels
         {
             DateFrom = null;
             DateTo = null;
+            SearchText = "";
 
             OnPropertyChanged(nameof(DateFrom));
             OnPropertyChanged(nameof(DateTo));
@@ -330,11 +456,11 @@ namespace BankApp.ViewModels
         private void UpdateStatsAndCharts()
         {
             TotalIncome = Transactions
-                .Where(x => x.Type == "Пополнение")
+                .Where(x => x.Type == "Пополнение" && !x.IsCanceled)
                 .Sum(x => x.Amount);
 
             TotalExpense = Transactions
-                .Where(x => x.Type == "Списание")
+                .Where(x => x.Type == "Списание" && !x.IsCanceled)
                 .Sum(x => x.Amount);
 
             IncomeChart.Clear();
@@ -349,13 +475,14 @@ namespace BankApp.ViewModels
                 IncomeChart.Add(new ChartPoint
                 {
                     Label = g.Key,
-                    Value = g.Where(x => x.Type == "Пополнение").Sum(x => x.Amount)
+                    Value = g.Where(x => x.Type == "Пополнение" &&
+        !x.IsCanceled).Sum(x => x.Amount)
                 });
 
                 ExpenseChart.Add(new ChartPoint
                 {
                     Label = g.Key,
-                    Value = g.Where(x => x.Type == "Списание").Sum(x => x.Amount)
+                    Value = g.Where(x => x.Type == "Списание" && !x.IsCanceled).Sum(x => x.Amount)
                 });
             }
         }
@@ -400,6 +527,11 @@ namespace BankApp.ViewModels
                     if (balance < amount)
                     {
                         MessageBox.Show("Недостаточно средств!");
+                        return;
+                    }
+                    if (amount <= 0)
+                    {
+                        MessageBox.Show("Сумма должна быть больше нуля!");
                         return;
                     }
                 }

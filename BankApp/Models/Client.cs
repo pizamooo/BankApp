@@ -14,5 +14,10 @@ namespace BankApp.Models
         public string Login { get; set; }
         public string PasswordHash { get; set; }
         public string Role { get; set; }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

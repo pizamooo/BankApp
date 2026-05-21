@@ -8,6 +8,15 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using BankApp.Services;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.IO.Font;
+using iText.Kernel.Font;
+using iText.Kernel.Colors;
+
 
 namespace BankApp.ViewModels
 {
@@ -15,7 +24,7 @@ namespace BankApp.ViewModels
     {
         public ObservableCollection<Account> Accounts { get; set; }
         private ObservableCollection<Account> _allAccounts;
-
+        private List<Client> _allClients = new List<Client>();
         public ObservableCollection<Client> Clients { get; set; }
 
         private ObservableCollection<Client> _filteredClients;
@@ -29,12 +38,126 @@ namespace BankApp.ViewModels
             }
         }
 
+        public bool IsEmptyStateVisible => !IsLoading && Accounts.Count == 0;
+
+        private string _phoneSearch;
+
+        public string PhoneSearch
+        {
+            get => _phoneSearch;
+            set
+            {
+                _phoneSearch = value;
+                OnPropertyChanged();
+
+                FilterClients();
+            }
+        }
+
+        private bool _showOnlyActive;
+        public bool ShowOnlyActive
+        {
+            get => _showOnlyActive;
+            set
+            {
+                _showOnlyActive = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private bool _showOnlyClosed;
+        public bool ShowOnlyClosed
+        {
+            get => _showOnlyClosed;
+            set
+            {
+                _showOnlyClosed = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private bool _showPositiveBalance;
+        public bool ShowPositiveBalance
+        {
+            get => _showPositiveBalance;
+            set
+            {
+                _showPositiveBalance = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private int _sortIndex;
+        public int SortIndex
+        {
+            get => _sortIndex;
+            set
+            {
+                _sortIndex = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private int _activeAccountsCount;
+        public int ActiveAccountsCount
+        {
+            get => _activeAccountsCount;
+            set
+            {
+                _activeAccountsCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _closedAccountsCount;
+        public int ClosedAccountsCount
+        {
+            get => _closedAccountsCount;
+            set
+            {
+                _closedAccountsCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalBalance;
+        public decimal TotalBalance
+        {
+            get => _totalBalance;
+            set
+            {
+                _totalBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ================= LOADING =================
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand CloseAllAccountsCommand { get; set; }
+        public RelayCommand ExportAccountsCommand { get; set; }
+
         public AccountsViewModel()
         {
             Accounts = new ObservableCollection<Account>();
             _allAccounts = new ObservableCollection<Account>();
             Clients = new ObservableCollection<Client>();
 
+            ExportAccountsCommand = new RelayCommand(ExportAccounts);
             AddAccountCommand = new RelayCommand(AddAccount, () => CanCreateAccount);
             CloseAccountCommand = new RelayCommand(CloseAccount);
             OpenAccountCommand = new RelayCommand(OpenAccount);
@@ -44,10 +167,233 @@ namespace BankApp.ViewModels
             LoadAccounts();
         }
 
+        private void ExportAccounts()
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PDF file (*.pdf)|*.pdf",
+                FileName = "accounts.pdf"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            string path = dialog.FileName;
+
+            var font = PdfFontFactory.CreateFont(
+                "c:/windows/fonts/arial.ttf",
+                PdfEncodings.IDENTITY_H);
+
+            var bold = PdfFontFactory.CreateFont(
+                "c:/windows/fonts/arialbd.ttf",
+                PdfEncodings.IDENTITY_H);
+
+            using (var writer = new PdfWriter(path))
+            using (var pdf = new PdfDocument(writer))
+            using (var doc = new Document(pdf))
+            {
+                // =========================
+                // HEADER
+                // =========================
+
+                doc.Add(new Paragraph("СПИСОК БАНКОВСКИХ СЧЕТОВ")
+                    .SetFont(bold)
+                    .SetFontSize(20)
+                    .SetTextAlignment(
+                        iText.Layout.Properties.TextAlignment.CENTER));
+
+                doc.Add(new Paragraph(
+                    $"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}")
+                    .SetFont(font)
+                    .SetTextAlignment(
+                        iText.Layout.Properties.TextAlignment.CENTER));
+
+                doc.Add(new Paragraph("\n"));
+
+                // =========================
+                // SUMMARY
+                // =========================
+
+                int total = Accounts.Count;
+                int active = Accounts.Count(x => !x.IsClosed);
+                int closed = Accounts.Count(x => x.IsClosed);
+                decimal balance = Accounts
+                    .Where(x => !x.IsClosed)
+                    .Sum(x => x.Balance);
+
+                Table summary = new Table(4)
+                    .UseAllAvailableWidth();
+
+                void SummaryHeader(string text)
+                {
+                    summary.AddHeaderCell(
+                        new Cell()
+                            .Add(new Paragraph(text).SetFont(bold))
+                            .SetBackgroundColor(
+                                iText.Kernel.Colors.ColorConstants.LIGHT_GRAY));
+                }
+
+                SummaryHeader("Всего");
+                SummaryHeader("Активные");
+                SummaryHeader("Закрытые");
+                SummaryHeader("Общий баланс");
+
+                summary.AddCell(
+                    new Cell().Add(
+                        new Paragraph(total.ToString()).SetFont(font)));
+
+                summary.AddCell(
+                    new Cell().Add(
+                        new Paragraph(active.ToString()).SetFont(font)));
+
+                summary.AddCell(
+                    new Cell().Add(
+                        new Paragraph(closed.ToString()).SetFont(font)));
+
+                summary.AddCell(
+                    new Cell().Add(
+                        new Paragraph($"{balance:N2} ₽").SetFont(font)));
+
+                doc.Add(summary);
+
+                doc.Add(new Paragraph("\n"));
+
+                // =========================
+                // TABLE
+                // =========================
+
+                Table table = new Table(5)
+                    .UseAllAvailableWidth();
+
+                void Header(string text)
+                {
+                    table.AddHeaderCell(
+                        new Cell()
+                            .Add(new Paragraph(text).SetFont(bold))
+                            .SetBackgroundColor(
+                                iText.Kernel.Colors.ColorConstants.LIGHT_GRAY));
+                }
+
+                Header("ID");
+                Header("Номер счета");
+                Header("Баланс");
+                Header("Клиент");
+                Header("Статус");
+
+                foreach (var acc in Accounts)
+                {
+                    table.AddCell(
+                        new Cell().Add(
+                            new Paragraph(acc.Id.ToString())
+                                .SetFont(font)));
+
+                    table.AddCell(
+                        new Cell().Add(
+                            new Paragraph(acc.AccountNumber)
+                                .SetFont(font)));
+
+                    var balanceCell = new Cell()
+                        .Add(new Paragraph(
+                            $"{acc.Balance:N2} ₽")
+                        .SetFont(font));
+
+                    if (acc.Balance > 0)
+                    {
+                        balanceCell.SetFontColor(
+                            iText.Kernel.Colors.ColorConstants.BLUE);
+                    }
+
+                    table.AddCell(balanceCell);
+
+                    table.AddCell(
+                        new Cell().Add(
+                            new Paragraph(acc.ClientId.ToString())
+                                .SetFont(font)));
+
+                    string status =
+                        acc.IsClosed
+                        ? "Закрыт"
+                        : "Активен";
+
+                    var statusCell = new Cell()
+                        .Add(new Paragraph(status)
+                        .SetFont(font));
+
+                    if (acc.IsClosed)
+                    {
+                        statusCell.SetFontColor(
+                            iText.Kernel.Colors.ColorConstants.RED);
+                    }
+                    else
+                    {
+                        statusCell.SetFontColor(
+                            iText.Kernel.Colors.ColorConstants.GREEN);
+                    }
+
+                    table.AddCell(statusCell);
+                }
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("\n"));
+
+                // =========================
+                // FOOTER
+                // =========================
+
+                doc.Add(
+                    new Paragraph(
+                        "Документ сформирован автоматически системой BankApp")
+                    .SetFont(font)
+                    .SetFontSize(9)
+                    .SetFontColor(
+                        iText.Kernel.Colors.ColorConstants.GRAY));
+            }
+
+            MessageBox.Show(
+                "Экспорт счетов успешно выполнен!");
+        }
+
+        private void UpdateStatistics()
+        {
+            ActiveAccountsCount =
+                _allAccounts.Count(x => !x.IsClosed);
+
+            ClosedAccountsCount =
+                _allAccounts.Count(x => x.IsClosed);
+
+            TotalBalance =
+                _allAccounts
+                    .Where(x => !x.IsClosed)
+                    .Sum(x => x.Balance);
+        }
+
+        private void FilterClients()
+        {
+            if (string.IsNullOrWhiteSpace(PhoneSearch))
+            {
+                FilteredClients =
+                    new ObservableCollection<Client>(_allClients);
+
+                return;
+            }
+
+            var filtered = _allClients
+                .Where(x => x.Phone != null &&
+                            x.Phone.Contains(PhoneSearch))
+                .ToList();
+
+            FilteredClients =
+                new ObservableCollection<Client>(filtered);
+
+            OnPropertyChanged(nameof(FilteredClients));
+        }
+
         private void RefreshCommands()
         {
             AddAccountCommand?.RaiseCanExecuteChanged();
         }
+
 
         // ================= SEARCH =================
         private string _searchText;
@@ -95,14 +441,21 @@ namespace BankApp.ViewModels
         private string _newAccountNumber;
         public string NewAccountNumber
         {
-            get { return _newAccountNumber; }
+            get => _newAccountNumber;
             set
             {
+                if (value != null)
+                {
+                    value = Regex.Replace(value, @"[^a-zA-Z0-9]", "");
+                }
+
                 _newAccountNumber = value;
+
                 OnPropertyChanged();
 
                 ValidateAccount();
                 OnPropertyChanged(nameof(CanCreateAccount));
+
                 RefreshCommands();
             }
         }
@@ -110,10 +463,23 @@ namespace BankApp.ViewModels
         private string _newBalance;
         public string NewBalance
         {
-            get { return _newBalance; }
+            get => _newBalance;
             set
             {
+                if (value != null)
+                {
+                    value = Regex.Replace(value, @"[^0-9\.,]", "");
+
+                    // запрещаем больше 1 точки/запятой
+                    int separators =
+                        value.Count(c => c == '.' || c == ',');
+
+                    if (separators > 1)
+                        return;
+                }
+
                 _newBalance = value;
+
                 OnPropertyChanged();
             }
         }
@@ -162,54 +528,60 @@ namespace BankApp.ViewModels
         }
         public RelayCommand CloseAccountCommand { get; set; }
         public RelayCommand OpenAccountCommand { get; set; }
-        public RelayCommand CloseAllAccountsCommand { get; set; }
 
         // ================= LOAD =================
         private void LoadClients()
         {
             Clients.Clear();
+            _allClients.Clear();
 
-            SqlConnection conn = DatabaseHelper.GetConnection();
-            conn.Open();
-
-            string query;
-
-            if (Session.CurrentUser.Role == "Client")
+            using (SqlConnection conn = DatabaseHelper.GetConnection())
             {
-                query = "SELECT Id, FullName, Phone FROM Clients WHERE Id = @id";
-            }
-            else
-            {
-                query = "SELECT Id, FullName, Phone FROM Clients";
-            }
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand(query, conn);
+                string query;
 
-            if (Session.CurrentUser.Role == "Client")
-            {
-                cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
-            }
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while (reader.Read())
-            {
-                Clients.Add(new Client
+                if (Session.CurrentUser.Role == "Client")
                 {
-                    Id = (int)reader["Id"],
-                    FullName = reader["FullName"].ToString(),
-                    Phone = reader["Phone"].ToString()
-                });
+                    query = "SELECT Id, FullName, Phone FROM Clients WHERE Id = @id";
+                }
+                else
+                {
+                    query = "SELECT Id, FullName, Phone FROM Clients";
+                }
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                if (Session.CurrentUser.Role == "Client")
+                {
+                    cmd.Parameters.AddWithValue("@id", Session.CurrentUser.Id);
+                }
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var client = new Client
+                    {
+                        Id = (int)reader["Id"],
+                        FullName = reader["FullName"].ToString(),
+                        Phone = reader["Phone"].ToString()
+                    };
+
+                    Clients.Add(client);
+                    _allClients.Add(client);
+                }
             }
 
-            conn.Close();
-
-            FilteredClients = new ObservableCollection<Client>(Clients);
+            FilteredClients =
+                new ObservableCollection<Client>(_allClients);
         }
 
         private void LoadAccounts()
         {
+            IsLoading = true;
             Accounts.Clear();
+            OnPropertyChanged(nameof(IsEmptyStateVisible));
             _allAccounts.Clear();
 
             SqlConnection conn = DatabaseHelper.GetConnection();
@@ -257,6 +629,8 @@ namespace BankApp.ViewModels
             conn.Close();
 
             ApplyFilter();
+            UpdateStatistics();
+            IsLoading = false;
         }
 
 
@@ -265,16 +639,48 @@ namespace BankApp.ViewModels
         {
             var result = _allAccounts.AsEnumerable();
 
+            // клиент
             if (SelectedClient != null)
                 result = result.Where(x => x.ClientId == SelectedClient.Id);
 
+            // поиск
             if (!string.IsNullOrWhiteSpace(SearchText))
-                result = result.Where(x => x.AccountNumber.Contains(SearchText));
+                result = result.Where(x =>
+                    x.AccountNumber.Contains(SearchText));
+
+            // активные
+            if (ShowOnlyActive)
+                result = result.Where(x => !x.IsClosed);
+
+            // закрытые
+            if (ShowOnlyClosed)
+                result = result.Where(x => x.IsClosed);
+
+            // баланс > 0
+            if (ShowPositiveBalance)
+                result = result.Where(x => x.Balance > 0);
+
+            // сортировка
+            switch (SortIndex)
+            {
+                case 1:
+                    result = result.OrderBy(x => x.Balance);
+                    break;
+
+                case 2:
+                    result = result.OrderByDescending(x => x.Balance);
+                    break;
+
+                case 3:
+                    result = result.OrderBy(x => x.AccountNumber);
+                    break;
+            }
 
             Accounts.Clear();
 
             foreach (var item in result)
                 Accounts.Add(item);
+            OnPropertyChanged(nameof(IsEmptyStateVisible));
         }
 
         // ================= VALIDATION =================
@@ -301,7 +707,9 @@ namespace BankApp.ViewModels
 
             decimal balance;
 
-            if (!decimal.TryParse(NewBalance, out balance))
+            string normalizedBalance = NewBalance.Replace(",", ".");
+
+            if (!decimal.TryParse(normalizedBalance,NumberStyles.Any,CultureInfo.InvariantCulture,out balance))
             {
                 MessageBox.Show("Введите корректный баланс!");
                 return;
@@ -330,18 +738,32 @@ namespace BankApp.ViewModels
         // ================= CLOSE =================
         private void CloseAccount()
         {
-            if (SelectedAccount == null) return;
+            if (SelectedAccount == null)
+            {
+                MessageBox.Show("Выберите счет!");
+                return;
+            }
 
-            SqlConnection conn = DatabaseHelper.GetConnection();
-            conn.Open();
+            if (SelectedAccount.Balance > 0)
+            {
+                MessageBox.Show(
+                    "Нельзя закрыть счет с положительным балансом!");
 
-            SqlCommand cmd = new SqlCommand(
-                "UPDATE Accounts SET IsClosed = 1 WHERE Id = @id", conn);
+                return;
+            }
 
-            cmd.Parameters.AddWithValue("@id", SelectedAccount.Id);
-            cmd.ExecuteNonQuery();
+            using (SqlConnection conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
 
-            conn.Close();
+                SqlCommand cmd = new SqlCommand(
+                    "UPDATE Accounts SET IsClosed = 1 WHERE Id = @id", conn);
+
+                cmd.Parameters.AddWithValue("@id", SelectedAccount.Id);
+
+                cmd.ExecuteNonQuery();
+            }
+
             LoadAccounts();
         }
 
@@ -366,18 +788,59 @@ namespace BankApp.ViewModels
         // ================= CLOSE ALL =================
         private void CloseAllAccounts()
         {
-            if (SelectedClient == null) return;
+            if (SelectedClient == null)
+            {
+                MessageBox.Show("Выберите клиента!");
+                return;
+            }
 
-            SqlConnection conn = DatabaseHelper.GetConnection();
-            conn.Open();
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand(
-                "UPDATE Accounts SET IsClosed = 1 WHERE ClientId = @id", conn);
+                // проверяем есть ли счета с деньгами
+                string checkQuery = @"
+SELECT COUNT(*)
+FROM Accounts
+WHERE ClientId = @ClientId
+AND Balance > 0
+AND IsClosed = 0";
 
-            cmd.Parameters.AddWithValue("@id", SelectedClient.Id);
-            cmd.ExecuteNonQuery();
+                SqlCommand checkCmd =
+                    new SqlCommand(checkQuery, conn);
 
-            conn.Close();
+                checkCmd.Parameters.AddWithValue(
+                    "@ClientId",
+                    SelectedClient.Id);
+
+                int count =
+                    Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (count > 0)
+                {
+                    MessageBox.Show(
+                        "У клиента есть счета с положительным балансом!");
+
+                    return;
+                }
+
+                string query = @"
+UPDATE Accounts
+SET IsClosed = 1
+WHERE ClientId = @ClientId
+AND IsClosed = 0";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue(
+                    "@ClientId",
+                    SelectedClient.Id);
+
+                int rows = cmd.ExecuteNonQuery();
+
+                MessageBox.Show($"Закрыто счетов: {rows}");
+            }
+
             LoadAccounts();
         }
     }
