@@ -253,6 +253,7 @@
     <Compile Include="Models\Dashboard\AccountItem.cs" />
     <Compile Include="Models\Dashboard\OperationItem.cs" />
     <Compile Include="Models\Dashboard\TemplateItem.cs" />
+    <Compile Include="Models\SystemLog.cs" />
     <Compile Include="Models\TopUpHistoryItem.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Transfer.cs" />
@@ -263,6 +264,7 @@
     </Compile>
     <Compile Include="Services\DeviceService.cs" />
     <Compile Include="Services\GeoLocationService.cs" />
+    <Compile Include="Services\LogService.cs" />
     <Compile Include="Services\NavService.cs" />
     <Compile Include="Services\PasswordHelper.cs" />
     <Compile Include="Services\Session.cs" />
@@ -279,6 +281,7 @@
       <DependentUpon>BankDB.tt</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\AccountsViewModel.cs" />
+    <Compile Include="ViewModels\AdminDashboardViewModel.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\ClientDashboardViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
@@ -290,8 +293,12 @@
     <Compile Include="ViewModels\TopUpViewModel.cs" />
     <Compile Include="ViewModels\TransactionsViewModel.cs" />
     <Compile Include="ViewModels\TransferViewModel.cs" />
+    <Compile Include="ViewModels\UserManagementViewModel.cs" />
     <Compile Include="Views\AccountsView.xaml.cs">
       <DependentUpon>AccountsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AdminDashboardView.xaml.cs">
+      <DependentUpon>AdminDashboardView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ClientDashboardView.xaml.cs">
       <DependentUpon>ClientDashboardView.xaml</DependentUpon>
@@ -313,6 +320,9 @@
     </Compile>
     <Compile Include="Views\TransfersView.xaml.cs">
       <DependentUpon>TransfersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserManagementView.xaml.cs">
+      <DependentUpon>UserManagementView.xaml</DependentUpon>
     </Compile>
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
@@ -349,6 +359,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AdminDashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ClientDashboardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -374,6 +388,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\TransfersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserManagementView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -267,6 +267,12 @@ namespace BankApp.ViewModels
                 balanceCmd.Parameters.AddWithValue("@AccountId", SelectedTransaction.AccountId);
 
                 balanceCmd.ExecuteNonQuery();
+
+                LogService.Log(
+    "Отмена операции",
+    $"Отменена операция #{SelectedTransaction.Id} " +
+    $"({SelectedTransaction.Type}) " +
+    $"на сумму {SelectedTransaction.Amount:N2} ₽");
             }
 
             MessageBox.Show("Операция отменена!");
@@ -560,6 +566,12 @@ t.IsCanceled,
                 updateCmd.Parameters.AddWithValue("@Id", SelectedAccount.Id);
 
                 updateCmd.ExecuteNonQuery();
+
+                LogService.Log(
+    "Создание операции",
+    $"Создана операция '{TypeInput}' " +
+    $"на сумму {amount:N2} ₽ " +
+    $"для счета {SelectedAccount.AccountNumber}");
             }
 
             LoadAccounts();
@@ -662,6 +674,11 @@ t.IsCanceled,
             sheet.Columns().AdjustToContents();
 
             workbook.SaveAs(path);
+
+            LogService.Log(
+    "Экспорт в Excel",
+    $"Экспортирована Excel-выписка по счету " +
+    $"{SelectedAccount?.AccountNumber}");
 
             MessageBox.Show("Excel выписка готов!");
         }
@@ -771,7 +788,12 @@ t.IsCanceled,
                     .SetFont(font)
                     .SetFontSize(9)
                     .SetFontColor(iText.Kernel.Colors.ColorConstants.GRAY));
+
             }
+                LogService.Log(
+    "Экспорт в PDF",
+    $"Экспортирована PDF-выписка по счету " +
+    $"{SelectedAccount?.AccountNumber}");
 
             MessageBox.Show("Выписка успешно экспортирована!");
         }

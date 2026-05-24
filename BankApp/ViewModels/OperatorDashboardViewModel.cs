@@ -72,7 +72,7 @@ namespace BankApp.ViewModels
         public OperatorDashboardViewModel()
         {
             LoadAccounts();
-
+            LoadTotalBalance();
             if (Accounts.Any())
                 SelectedAccount = Accounts.First();
         }

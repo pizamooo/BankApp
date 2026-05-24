@@ -16,6 +16,7 @@ using iText.Layout.Element;
 using iText.IO.Font;
 using iText.Kernel.Font;
 using iText.Kernel.Colors;
+using Microsoft.Extensions.Logging;
 
 
 namespace BankApp.ViewModels
@@ -34,6 +35,17 @@ namespace BankApp.ViewModels
             set
             {
                 _filteredClients = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _generatedIban;
+        public string GeneratedIban
+        {
+            get => _generatedIban;
+            set
+            {
+                _generatedIban = value;
                 OnPropertyChanged();
             }
         }
@@ -167,12 +179,41 @@ namespace BankApp.ViewModels
             LoadAccounts();
         }
 
+        private string GenerateIban()
+        {
+            using (SqlConnection conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand(@"
+SELECT TOP 1 Iban
+FROM Accounts
+ORDER BY Id DESC", conn);
+
+                object result = cmd.ExecuteScalar();
+
+                if (result == null)
+                    return "RU00000000000000000";
+
+                string lastIban = result.ToString();
+
+                string numericPart =
+                    lastIban.Replace("RU", "");
+
+                long number = long.Parse(numericPart);
+
+                number++;
+
+                return "RU" + number.ToString("D17");
+            }
+        }
+
         private void ExportAccounts()
         {
             var dialog = new Microsoft.Win32.SaveFileDialog
             {
                 Filter = "PDF file (*.pdf)|*.pdf",
-                FileName = "accounts.pdf"
+                FileName = "выписка.pdf"
             };
 
             if (dialog.ShowDialog() != true)
@@ -349,9 +390,12 @@ namespace BankApp.ViewModels
                     .SetFontColor(
                         iText.Kernel.Colors.ColorConstants.GRAY));
             }
+            LogService.Log(
+    "Экспорт в PDF",
+    $"Экспортирована PDF-выписка по счету " +
+    $"{SelectedAccount?.AccountNumber}");
 
-            MessageBox.Show(
-                "Экспорт счетов успешно выполнен!");
+            MessageBox.Show("Экспорт счетов успешно выполнен!");
         }
 
         private void UpdateStatistics()
@@ -454,6 +498,16 @@ namespace BankApp.ViewModels
                 OnPropertyChanged();
 
                 ValidateAccount();
+
+                if (!string.IsNullOrWhiteSpace(_newAccountNumber))
+                {
+                    GeneratedIban = GenerateIban();
+                }
+                else
+                {
+                    GeneratedIban = "";
+                }
+
                 OnPropertyChanged(nameof(CanCreateAccount));
 
                 RefreshCommands();
@@ -592,14 +646,14 @@ namespace BankApp.ViewModels
             if (Session.CurrentUser.Role == "Client")
             {
                 query = @"
-            SELECT Id, AccountNumber, Balance, ClientId, IsClosed
+            SELECT Id, AccountNumber, Balance, ClientId, IsClosed, Iban
             FROM Accounts
             WHERE ClientId = @clientId";
             }
             else
             {
                 query = @"
-            SELECT Id, AccountNumber, Balance, ClientId, IsClosed
+            SELECT Id, AccountNumber, Balance, ClientId, IsClosed, Iban
             FROM Accounts";
             }
 
@@ -620,7 +674,8 @@ namespace BankApp.ViewModels
                     AccountNumber = reader["AccountNumber"].ToString(),
                     Balance = (decimal)reader["Balance"],
                     ClientId = (int)reader["ClientId"],
-                    IsClosed = (bool)reader["IsClosed"]
+                    IsClosed = (bool)reader["IsClosed"],
+                    Iban = reader["Iban"].ToString()
                 };
 
                 _allAccounts.Add(acc);
@@ -719,20 +774,25 @@ namespace BankApp.ViewModels
             conn.Open();
 
             SqlCommand cmd = new SqlCommand(@"
-                INSERT INTO Accounts (AccountNumber, Balance, ClientId)
-                VALUES (@n, @b, @c)", conn);
+                INSERT INTO Accounts
+(AccountNumber, Balance, ClientId, Iban)
+VALUES
+(@n, @b, @c, @iban)", conn);
 
             cmd.Parameters.AddWithValue("@n", NewAccountNumber);
             cmd.Parameters.AddWithValue("@b", balance);
             cmd.Parameters.AddWithValue("@c", SelectedClient.Id);
+            cmd.Parameters.AddWithValue("@iban", GeneratedIban);
 
             cmd.ExecuteNonQuery();
             conn.Close();
 
             NewAccountNumber = "";
             NewBalance = "";
+            GeneratedIban = "";
 
             LoadAccounts();
+            LogService.Log("Создание счета", $"Создан счет {NewAccountNumber}, IBAN {GeneratedIban}");
         }
 
         // ================= CLOSE =================
@@ -762,6 +822,8 @@ namespace BankApp.ViewModels
                 cmd.Parameters.AddWithValue("@id", SelectedAccount.Id);
 
                 cmd.ExecuteNonQuery();
+
+                LogService.Log("Закрытие счета", $"Закрыт счет {SelectedAccount.AccountNumber}");
             }
 
             LoadAccounts();
@@ -780,6 +842,8 @@ namespace BankApp.ViewModels
 
             cmd.Parameters.AddWithValue("@id", SelectedAccount.Id);
             cmd.ExecuteNonQuery();
+
+            LogService.Log("Открытие счета", $"Открыт счет {SelectedAccount.AccountNumber}");
 
             conn.Close();
             LoadAccounts();
@@ -837,6 +901,8 @@ AND IsClosed = 0";
                     SelectedClient.Id);
 
                 int rows = cmd.ExecuteNonQuery();
+
+                LogService.Log("Закрытие всех счетов", $"Оператор закрыл все счета клиента ID {SelectedClient.Id}. Закрыто счетов: {rows}");
 
                 MessageBox.Show($"Закрыто счетов: {rows}");
             }

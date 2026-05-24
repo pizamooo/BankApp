@@ -40,12 +40,24 @@ namespace BankApp.ViewModels
         public RelayCommand OpenTransferFromDashboardCommand { get; set; }
         public RelayCommand OpenTopUpFromDashboardCommand { get; set; }
         public RelayCommand OpenSecurityCommand { get; set; }
+        public RelayCommand ShowUsersCommand { get; set; }
+        public RelayCommand ShowAdminDashboardCommand { get; set; }
 
         private Stack<object> _history = new Stack<object>();
 
         public MainViewModel()
         {
             ShowDashboardCommand = new RelayCommand(OpenDashboard);
+
+            ShowAdminDashboardCommand = new RelayCommand(() =>
+            {
+                Navigate(new AdminDashboardView());
+            });
+
+            ShowUsersCommand = new RelayCommand(() =>
+            {
+                Navigate(new UserManagementView());
+            });
 
             NavService.VM = this;
             ShowTransactionsCommand = new RelayCommand(() =>
@@ -81,7 +93,7 @@ namespace BankApp.ViewModels
             switch (Session.CurrentUser.Role)
             {
                 case "Admin":
-                    CurrentView = new AccountsView();
+                    CurrentView = new AdminDashboardView();
                     break;
 
                 case "Operator":

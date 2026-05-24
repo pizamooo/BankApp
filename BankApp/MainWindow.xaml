@@ -73,6 +73,14 @@
                         Command="{Binding ShowTransfersCommand}"
                         Visibility="{Binding IsClient,Converter={StaticResource BoolToVisibilityConverter}}"/>
 
+					<Button Content="Админ панель"
+							Command="{Binding ShowAdminDashboardCommand}"
+							Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+					<Button Content="Пользователи"
+							Command="{Binding ShowUsersCommand}"
+							Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
 				</StackPanel>
 
 			</Border>

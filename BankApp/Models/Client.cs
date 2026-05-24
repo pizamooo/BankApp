@@ -14,6 +14,8 @@ namespace BankApp.Models
         public string Login { get; set; }
         public string PasswordHash { get; set; }
         public string Role { get; set; }
+        public bool IsBlocked { get; set; }
+        public int AccountsCount { get; set; }
 
         public override string ToString()
         {

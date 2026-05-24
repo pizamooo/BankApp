@@ -9,6 +9,7 @@ namespace BankApp.Models
         public string AccountNumber { get; set; }
         public decimal Balance { get; set; }
         public bool IsClosed { get; set; }
+        public string Iban { get; set; }
 
         // ДОБАВИМ (для UI)
         public string ClientName { get; set; }

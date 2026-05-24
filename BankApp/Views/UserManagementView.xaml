@@ -1,0 +1,252 @@
+﻿<UserControl x:Class="BankApp.Views.UserManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:BankApp.ViewModels"
+             mc:Ignorable="d"
+             Background="#F4F6F9">
+
+	<UserControl.DataContext>
+		<vm:UserManagementViewModel/>
+	</UserControl.DataContext>
+
+	<Grid Margin="20">
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- HEADER -->
+
+		<Border Background="White"
+                CornerRadius="18"
+                Padding="25"
+                Margin="0 0 0 20">
+
+			<StackPanel>
+
+				<TextBlock Text="Управление пользователями"
+                           FontSize="30"
+                           FontWeight="Bold"/>
+
+				<TextBlock Text="Администрирование клиентов и операторов"
+                           Foreground="Gray"
+                           Margin="0 5 0 0"/>
+
+			</StackPanel>
+
+		</Border>
+
+		<!-- TABLE -->
+
+		<Border Grid.Row="1"
+                Background="White"
+                CornerRadius="18"
+                Padding="20">
+
+			
+			
+			<DockPanel>
+
+				<!-- BUTTONS -->
+
+				<WrapPanel DockPanel.Dock="Top"
+           Margin="0 20 0 15"
+           VerticalAlignment="Center"
+           ItemHeight="70">
+
+					<StackPanel Margin="0 0 10 10">
+
+						<TextBlock Text="Поиск"
+               FontSize="12"
+               Foreground="Gray"
+               Margin="5 0"/>
+
+						<TextBox Width="240"
+             Height="36"
+             Padding="10 0"
+             VerticalContentAlignment="Center"
+             Text="{Binding SearchText,
+                    UpdateSourceTrigger=PropertyChanged}"
+             ToolTip="Поиск по ФИО или телефону"/>
+					</StackPanel>
+
+					<!-- РОЛЬ -->
+
+					<StackPanel Margin="0 0 10 10">
+
+						<TextBlock Text="Роль"
+               FontSize="12"
+               Foreground="Gray"
+               Margin="5 0"/>
+
+						<ComboBox Width="150"
+              Height="36"
+              ItemsSource="{Binding Roles}"
+              SelectedItem="{Binding SelectedRole}"
+              ToolTip="Фильтр по роли"/>
+					</StackPanel>
+
+					<!-- СТАТУС -->
+
+					<StackPanel Margin="0 0 15 10">
+
+						<TextBlock Text="Статус"
+               FontSize="12"
+               Foreground="Gray"
+               Margin="5 0"/>
+
+						<ComboBox Width="180"
+              Height="36"
+              ItemsSource="{Binding Statuses}"
+              SelectedItem="{Binding SelectedStatus}"
+              ToolTip="Фильтр по статусу"/>
+					</StackPanel>
+
+					<Button Content="Заблокировать"
+                            Width="160"
+                            Height="36"
+                            Margin="0 0 10 0"
+                            Command="{Binding BlockUserCommand}"/>
+
+					<Button Content="Разблокировать"
+                            Width="160"
+                            Height="36"
+                            Margin="0 0 10 0"
+                            Command="{Binding UnblockUserCommand}"/>
+
+					<Button Content="Сделать оператором"
+                            Width="180"
+                            Height="36"
+                            Margin="0 0 10 0"
+                            Command="{Binding MakeOperatorCommand}"/>
+
+					<Button Content="Сделать клиентом"
+                            Width="180"
+                            Height="36"
+							Margin="0 0 10 0"
+                            Command="{Binding MakeClientCommand}"/>
+
+				</WrapPanel>
+
+				<!-- GRID -->
+
+				<DataGrid ItemsSource="{Binding Users}"
+                          SelectedItem="{Binding SelectedUser}"
+                          AutoGenerateColumns="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="None"
+                          BorderThickness="0"
+                          RowHeight="42"
+                          IsReadOnly="True">
+
+					<DataGrid.Columns>
+
+						<DataGridTextColumn Header="ID"
+                                            Width="80"
+                                            Binding="{Binding Id}"/>
+
+						<DataGridTextColumn Header="ФИО"
+                                            Width="*"
+                                            Binding="{Binding FullName}"/>
+
+						<DataGridTextColumn Header="Телефон"
+                                            Width="180"
+                                            Binding="{Binding Phone}"/>
+
+						<DataGridTemplateColumn Header="Роль"
+                        Width="160">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Border Padding="10 4"
+                    CornerRadius="10">
+										<Border.Style>
+											<Style TargetType="Border">
+												<Setter Property="Background"
+                                Value="#DBEAFE"/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding Role}"
+                                         Value="Admin">
+														<Setter Property="Background"
+                                        Value="#FECACA"/>
+													</DataTrigger>
+													<DataTrigger Binding="{Binding Role}"
+                                         Value="Operator">
+														<Setter Property="Background"
+                                        Value="#DDD6FE"/>
+
+													</DataTrigger>
+													<DataTrigger Binding="{Binding Role}"
+                                         Value="Client">
+														<Setter Property="Background"
+                                        Value="#DCFCE7"/>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</Border.Style>
+										<TextBlock Text="{Binding Role}"
+                           FontWeight="SemiBold"/>
+									</Border>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+
+						<DataGridTextColumn Header="Счетов"
+                    Width="120"
+                    Binding="{Binding AccountsCount}"/>
+
+						<DataGridTemplateColumn Header="Статус"
+                        Width="160">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Border Padding="10 4"
+                    CornerRadius="10">
+										<Border.Style>
+											<Style TargetType="Border">
+
+												<Setter Property="Background"
+                                Value="#DCFCE7"/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsBlocked}"
+                                         Value="True">
+														<Setter Property="Background"
+                                        Value="#FEE2E2"/>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</Border.Style>
+										<TextBlock FontWeight="SemiBold">
+											<TextBlock.Style>
+												<Style TargetType="TextBlock">
+
+													<Setter Property="Text"
+                                    Value="Активен"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding IsBlocked}"
+                                             Value="True">
+
+															<Setter Property="Text"
+                                            Value="Заблокирован"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</TextBlock.Style>
+										</TextBlock>
+									</Border>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+
+					</DataGrid.Columns>
+
+				</DataGrid>
+
+			</DockPanel>
+
+		</Border>
+
+	</Grid>
+
+</UserControl>

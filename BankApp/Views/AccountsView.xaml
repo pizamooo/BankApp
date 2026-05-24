@@ -224,6 +224,23 @@
                                      Padding="10 0"
                                      Text="{Binding NewAccountNumber,
                                             UpdateSourceTrigger=PropertyChanged}"/>
+							<StackPanel Grid.Column="2"
+            Margin="5">
+
+								<TextBlock Text="IBAN"
+               FontSize="12"
+               Foreground="Gray"/>
+
+								<TextBox Height="38"
+             IsReadOnly="True"
+             Background="#F3F4F6"
+             Foreground="#2563EB"
+             FontWeight="Bold"
+             VerticalContentAlignment="Center"
+             Padding="10 0"
+             Text="{Binding GeneratedIban}"/>
+
+							</StackPanel>
 
 						</StackPanel>
 
@@ -247,7 +264,7 @@
 						<!-- КНОПКА -->
 						<StackPanel Grid.Column="4"
                                     Margin="10 0 0 0"
-                                    VerticalAlignment="Bottom">
+                                    VerticalAlignment="Center">
 
 							<Button Content="＋ Создать"
                                     Height="40"
@@ -321,14 +338,21 @@
 				<WrapPanel VerticalAlignment="Center">
 
 					<!-- ПОИСК -->
-					<TextBox Width="220"
-                 Height="38"
-                 Margin="0 0 10 0"
-                 Padding="10 0"
-                 VerticalContentAlignment="Center"
-                 Text="{Binding SearchText,
-                 UpdateSourceTrigger=PropertyChanged}"
-                 ToolTip="Поиск по номеру счета"/>
+					<StackPanel Margin="0 0 15 0">
+
+						<TextBlock Text="Поиск"
+                       FontSize="12"
+                       Foreground="Gray"/>
+
+						<TextBox Width="220"
+                     Height="38"
+                     Padding="10 0"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding SearchText,
+                     UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Поиск по номеру счета"/>
+
+					</StackPanel>
 
 					<!-- ТОЛЬКО АКТИВНЫЕ -->
 					<CheckBox Content="Только активные"
@@ -445,6 +469,9 @@
 							</DataGridTextColumn.ElementStyle>
 
 						</DataGridTextColumn>
+						<DataGridTextColumn Header="IBAN"
+											Binding="{Binding Iban}"
+											Width="260"/>
 
 						<!-- КЛИЕНТ -->
 						<DataGridTextColumn Header="ID клиента"
@@ -576,7 +603,7 @@
                                 Command="{Binding OpenAccountCommand}"/>
 
 						<!-- CLOSE ALL -->
-						<Button Content="⚠ Закрыть все счета"
+						<Button Content="⚠ Закрыть все счета клиента"
                                 Width="220"
                                 Height="42"
                                 Background="#F59E0B"
