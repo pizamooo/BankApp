@@ -12,5 +12,10 @@ namespace BankApp.Models.Dashboard
         public string Iban { get; set; }
         public decimal Balance { get; set; }
         public string Name { get; set; }
+        public string BalanceText =>
+            Balance.ToString("N2") + " ₽";
+
+        public string Display =>
+            $"{Iban} • {Balance:N2} ₽";
     }
 }

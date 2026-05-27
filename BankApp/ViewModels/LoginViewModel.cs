@@ -107,6 +107,12 @@ namespace BankApp.ViewModels
         {
             LoginCommand = new RelayCommand(LoginUser);
             OpenRegisterCommand = new RelayCommand(OpenRegister);
+
+            if (Properties.Settings.Default.RememberMe)
+            {
+                Login = Properties.Settings.Default.SavedLogin;
+                RememberMe = true;
+            }
         }
 
         private void SaveUserSession()
@@ -241,6 +247,19 @@ VALUES
             {
                 return;
             }
+
+            if (RememberMe)
+            {
+                Properties.Settings.Default.SavedLogin = Login;
+                Properties.Settings.Default.RememberMe = true;
+            }
+            else
+            {
+                Properties.Settings.Default.SavedLogin = "";
+                Properties.Settings.Default.RememberMe = false;
+            }
+
+            Properties.Settings.Default.Save();
 
             using (var conn = DatabaseHelper.GetConnection())
             {

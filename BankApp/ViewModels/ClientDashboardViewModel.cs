@@ -27,6 +27,49 @@ namespace BankApp.ViewModels
             }
         }
 
+        private AccountItem _selectedAccount;
+
+        public AccountItem SelectedAccount
+        {
+            get => _selectedAccount;
+            set
+            {
+                _selectedAccount = value;
+
+                OnPropertyChanged();
+
+                if (value != null)
+                {
+                    SelectedIban = value.Iban;
+                    SelectedBalance = value.BalanceText;
+                }
+            }
+        }
+
+        private string _selectedIban;
+
+        public string SelectedIban
+        {
+            get => _selectedIban;
+            set
+            {
+                _selectedIban = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _selectedBalance;
+
+        public string SelectedBalance
+        {
+            get => _selectedBalance;
+            set
+            {
+                _selectedBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
         public List<string> Periods { get; set; } =
             new List<string>
         {
@@ -67,6 +110,7 @@ namespace BankApp.ViewModels
         public ObservableCollection<TemplateItem> Templates { get; set; }
         public ObservableCollection<ChartBarItem> ChartBars { get; set; }
         public static ClientDashboardViewModel Instance { get; private set; }
+        public ObservableCollection<AccountItem> Accounts { get; set; }
 
 
         private decimal _totalIncome;
@@ -107,11 +151,18 @@ namespace BankApp.ViewModels
         public ClientDashboardViewModel()
         {
             Instance = this;
+            Accounts = new ObservableCollection<AccountItem>();
             LastOperations = new ObservableCollection<OperationItem>();
             Templates = new ObservableCollection<TemplateItem>();
             ChartBars = new ObservableCollection<ChartBarItem>();
 
             LoadData();
+        }
+
+        public void UpdateBalance()
+        {
+            OnPropertyChanged(nameof(SelectedBalance));
+            OnPropertyChanged(nameof(SelectedIban));
         }
 
         public void Refresh()
@@ -127,9 +178,50 @@ namespace BankApp.ViewModels
         private void LoadData()
         {
             LoadBalance();
+            LoadAccounts();
             LoadLastOperations();
             LoadTemplates();
             LoadChart();
+        }
+
+        private void LoadAccounts()
+        {
+            Accounts.Clear();
+
+            using (SqlConnection conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand(@"
+SELECT
+    Id,
+    Iban,
+    Balance
+FROM Accounts
+WHERE ClientId = @id
+AND IsClosed = 0", conn);
+
+                cmd.Parameters.AddWithValue(
+                    "@id",
+                    Session.CurrentUser.Id);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Accounts.Add(new AccountItem
+                    {
+                        Id = (int)reader["Id"],
+                        Iban = reader["Iban"].ToString(),
+                        Balance = Convert.ToDecimal(reader["Balance"])
+                    });
+                }
+            }
+
+            if (Accounts.Count > 0)
+            {
+                SelectedAccount = Accounts[0];
+            }
         }
 
         // =========================

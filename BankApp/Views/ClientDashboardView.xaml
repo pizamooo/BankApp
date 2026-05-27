@@ -70,7 +70,7 @@
 
 						<TextBlock Text="Общий баланс"
                                    Foreground="#E0E7FF"
-                                   FontSize="14"/>
+                                   FontSize="18"/>
 
 					</StackPanel>
 
@@ -80,19 +80,6 @@
 							<ColumnDefinition/>
 							<ColumnDefinition/>
 						</Grid.ColumnDefinitions>
-
-
-						<StackPanel Grid.Column="0"
-                                    HorizontalAlignment="Left">
-
-							<TextBlock Text="IBAN"
-                                       Foreground="#C7D2FE"
-                                       FontSize="11"/>
-
-							<TextBlock Text="{Binding IBAN}"
-                                       Foreground="White"
-                                       FontSize="14"/>
-						</StackPanel>
 
 					</Grid>
 

@@ -2,6 +2,8 @@
 using BankApp.Services;
 using System.Windows;
 using System.Collections.Generic;
+using BankApp.Data;
+using System.Data.SqlClient;
 
 namespace BankApp.ViewModels
 {
@@ -42,11 +44,19 @@ namespace BankApp.ViewModels
         public RelayCommand OpenSecurityCommand { get; set; }
         public RelayCommand ShowUsersCommand { get; set; }
         public RelayCommand ShowAdminDashboardCommand { get; set; }
+        public RelayCommand LogoutCommand { get; set; }
+        public RelayCommand ShowHelpCommand { get; set; }
 
         private Stack<object> _history = new Stack<object>();
 
         public MainViewModel()
         {
+            ShowHelpCommand = new RelayCommand(() =>
+            {
+                Navigate(new HelpView());
+            });
+            LogoutCommand = new RelayCommand(Logout);
+
             ShowDashboardCommand = new RelayCommand(OpenDashboard);
 
             ShowAdminDashboardCommand = new RelayCommand(() =>
@@ -107,6 +117,43 @@ namespace BankApp.ViewModels
                 default:
                     MessageBox.Show("Неизвестная роль");
                     break;
+            }
+        }
+
+        private void Logout()
+        {
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SqlCommand(@"
+UPDATE UserSessions
+SET
+    IsActive = 0,
+    IsCurrent = 0,
+    LastActivity = GETDATE()
+WHERE UserId = @userId
+AND IsCurrent = 1", conn);
+
+                cmd.Parameters.AddWithValue(
+                    "@userId",
+                    Session.CurrentUser.Id);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            Session.CurrentUser = null;
+
+            LoginWindow login = new LoginWindow();
+            login.Show();
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is MainWindow)
+                {
+                    window.Close();
+                    break;
+                }
             }
         }
 

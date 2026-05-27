@@ -253,6 +253,7 @@
     <Compile Include="Models\Dashboard\AccountItem.cs" />
     <Compile Include="Models\Dashboard\OperationItem.cs" />
     <Compile Include="Models\Dashboard\TemplateItem.cs" />
+    <Compile Include="Models\FaqItem.cs" />
     <Compile Include="Models\SystemLog.cs" />
     <Compile Include="Models\TopUpHistoryItem.cs" />
     <Compile Include="Models\Transaction.cs" />
@@ -284,6 +285,7 @@
     <Compile Include="ViewModels\AdminDashboardViewModel.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\ClientDashboardViewModel.cs" />
+    <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\OperatorDashboardViewModel.cs" />
@@ -302,6 +304,9 @@
     </Compile>
     <Compile Include="Views\ClientDashboardView.xaml.cs">
       <DependentUpon>ClientDashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\OperatorDashboardView.xaml.cs">
       <DependentUpon>OperatorDashboardView.xaml</DependentUpon>
@@ -364,6 +369,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ClientDashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HelpView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

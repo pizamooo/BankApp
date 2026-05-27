@@ -268,6 +268,7 @@
             Height="38"
             Background="#DC2626"
             Foreground="White"
+									Cursor="Hand"
             FontWeight="Bold"
             BorderThickness="0"
             Command="{Binding CancelTransactionCommand}">
