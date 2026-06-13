@@ -41,5 +41,59 @@
 			<Setter Property="BorderBrush" Value="#D1D5DB"/>
 			<Setter Property="BorderThickness" Value="1"/>
 		</Style>
+		<!-- Card / Border Style -->
+		<Style x:Key="Card" TargetType="Border">
+			<Setter Property="Background" Value="#FF2D2D2D"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="Padding" Value="30"/>
+		</Style>
+
+		<Style x:Key="InputBorder" TargetType="Border">
+			<Setter Property="Background" Value="#FF3C3C3C"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="BorderBrush" Value="#FF555555"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Padding" Value="10"/>
+		</Style>
+
+		<Style x:Key="InputStyle" TargetType="TextBox">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="FontSize" Value="15"/>
+		</Style>
+
+		<Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="FontSize" Value="15"/>
+		</Style>
+
+		<!-- Кнопки (Primary и Secondary) -->
+		<Style x:Key="PrimaryButton" TargetType="Button">
+			<Setter Property="Background" Value="#FF4A90E2"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="10">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style x:Key="SecondaryButton" TargetType="Button">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#FFAAAAAA"/>
+			<Setter Property="BorderBrush" Value="#FF555555"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
 	</Application.Resources>
 </Application>

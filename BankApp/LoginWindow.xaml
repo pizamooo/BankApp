@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:BankApp.ViewModels"
         xmlns:conv="clr-namespace:BankApp.Converters"
         Title="Авторизация"
-        Height="620"
+        Height="630"
         Width="430"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -210,7 +210,12 @@
 				<Button Content="Регистрация"
                         Style="{StaticResource SecondaryButton}"
                         Command="{Binding OpenRegisterCommand}"/>
-
+				<TextBlock Text="Забыли пароль?" 
+						   Foreground="#4A90E2" 
+						   HorizontalAlignment="Center" 
+						   Margin="0,10,0,0"
+						   Cursor="Hand"
+   						   MouseLeftButtonDown="ForgotPassword_Click"/>
 			</StackPanel>
 
 		</Border>

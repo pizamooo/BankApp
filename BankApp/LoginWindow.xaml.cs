@@ -1,4 +1,5 @@
 ﻿using BankApp.ViewModels;
+using BankApp.Views;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -38,6 +39,12 @@ namespace BankApp
             {
                 PasswordBox.Password = PasswordTextBox.Text;
             }
+        }
+
+        private void ForgotPassword_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            new ForgotPasswordWindow().Show();
+            this.Hide();
         }
     }
 }
