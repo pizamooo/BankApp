@@ -281,46 +281,81 @@
            FontWeight="Bold"
            Margin="0,25,0,15"/>
 
-				<Border Background="White"
-        CornerRadius="18"
-        Padding="10">
+				<ListBox ItemsSource="{Binding TopUpHistory}"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         SelectedItem="{Binding SelectedTopUp}"
+                         SelectionMode="Single">
 
-					<ItemsControl ItemsSource="{Binding TopUpHistory}">
+					<ListBox.ItemContainerStyle>
+						<Style TargetType="ListBoxItem">
+							<Setter Property="Focusable" Value="True"/>
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="BorderThickness" Value="0"/>
+							<Setter Property="Padding" Value="0"/>
+							<Setter Property="Margin" Value="0,0,0,14"/>
+							<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+							<Style.Triggers>
+								<Trigger Property="IsSelected" Value="True">
+									<Setter Property="Background" Value="#E0F2FE"/>
+									<Setter Property="BorderBrush" Value="#3B82F6"/>
+									<Setter Property="BorderThickness" Value="3"/>
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+					</ListBox.ItemContainerStyle>
 
-						<ItemsControl.ItemTemplate>
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Border x:Name="Bubble"
+                                    Padding="18"
+                                    CornerRadius="22"
+                                    Margin="0,4"
+                                    Cursor="Hand"
+                                    MaxWidth="340"
+                                    Background="White">
+								<Border.Effect>
+									<DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.10"/>
+								</Border.Effect>
 
-							<DataTemplate>
+								<StackPanel>
+									<!-- Иконка -->
+									<TextBlock Text="💰" 
+                                               FontSize="32" 
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,8"/>
 
-								<Grid Margin="10">
+									<!-- Сумма -->
+									<TextBlock Text="{Binding Amount}"
+                                               FontWeight="Bold"
+                                               FontSize="24"
+                                               HorizontalAlignment="Center"
+                                               Foreground="#16A34A"/>
 
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition/>
-										<ColumnDefinition Width="Auto"/>
-									</Grid.ColumnDefinitions>
+									<!-- Карта -->
+									<TextBlock Text="{Binding Card}"
+                                               FontWeight="SemiBold"
+                                               FontSize="15"
+                                               TextAlignment="Center"
+                                               Margin="0,8,0,4"/>
 
-									<StackPanel>
+									<!-- Дата -->
+									<TextBlock Text="{Binding Date}"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               Foreground="#64748B"/>
+								</StackPanel>
+							</Border>
 
-										<TextBlock Text="{Binding Card}"
-                                   FontWeight="SemiBold"/>
-
-										<TextBlock Text="{Binding Date}"
-                                   FontSize="12"
-                                   Foreground="#64748B"/>
-
-									</StackPanel>
-
-									<TextBlock Grid.Column="1"
-                               Text="{Binding Amount}"
-                               FontWeight="Bold"
-                               Foreground="#16A34A"
-                               VerticalAlignment="Center"/>
-
-								</Grid>
-
-							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-				</Border>
+							<DataTemplate.Triggers>
+								<Trigger SourceName="Bubble" Property="IsMouseOver" Value="True">
+									<Setter TargetName="Bubble" Property="Opacity" Value="0.92"/>
+								</Trigger>
+							</DataTemplate.Triggers>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 
 			</StackPanel>
 
@@ -344,6 +379,22 @@
                     Command="{Binding GoBackCommand}"/>
 
 		</Border>
+		<Button Content="🧾 Экспорт чека"
+        Grid.Column="0"
+		Width="140"
+		Height="44"
+        Padding="20,12"
+        FontSize="15"
+        FontWeight="SemiBold"
+        Background="#10B981"
+        Foreground="White"
+		HorizontalAlignment="Left"
+		VerticalAlignment="Bottom"
+        BorderThickness="0"
+		Margin="20,0,0,10"
+        Cursor="Hand"
+        Command="{Binding ExportTopUpReceiptCommand}"/>
+		
 		<Button Content="↑"
 				Width="44"
 				Height="44"

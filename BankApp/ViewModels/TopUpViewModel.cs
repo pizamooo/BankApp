@@ -18,6 +18,18 @@ namespace BankApp.ViewModels
         public ObservableCollection<CardItem> Cards { get; set; }
         public ObservableCollection<AccountItem> Accounts { get; set; }
         public ObservableCollection<TopUpHistoryItem> TopUpHistory { get; set; }
+        private readonly PdfReceiptService _receiptService = new PdfReceiptService();
+
+        private TopUpHistoryItem _selectedTopUp;
+        public TopUpHistoryItem SelectedTopUp
+        {
+            get => _selectedTopUp;
+            set
+            {
+                _selectedTopUp = value;
+                OnPropertyChanged();
+            }
+        }
         public string UserName => Session.CurrentUser.FullName?.ToUpper();
 
         public decimal Commission
@@ -101,6 +113,7 @@ namespace BankApp.ViewModels
         public RelayCommand Add1000Command { get; set; }
         public RelayCommand Add5000Command { get; set; }
         public RelayCommand Add10000Command { get; set; }
+        public RelayCommand ExportTopUpReceiptCommand { get; }
 
         public TopUpViewModel()
         {
@@ -114,11 +127,47 @@ namespace BankApp.ViewModels
             Add1000Command = new RelayCommand(() => AddAmount(1000));
             Add5000Command = new RelayCommand(() => AddAmount(5000));
             Add10000Command = new RelayCommand(() => AddAmount(10000));
+            ExportTopUpReceiptCommand = new RelayCommand(ExportTopUpReceipt);
 
             LoadCards();
 
             LoadAccounts();
             LoadTopUpHistory();
+        }
+
+        private void ExportTopUpReceipt()
+        {
+            if (SelectedTopUp == null)
+            {
+                MessageBox.Show("Сначала выберите пополнение из списка",
+                               "Внимание", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                string clientName = Session.CurrentUser?.FullName ?? "Клиент";
+
+                var bytes = _receiptService.GenerateTopUpReceipt(SelectedTopUp, clientName);
+
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PDF файлы (*.pdf)|*.pdf",
+                    FileName = $"Чек_пополнение_{SelectedTopUp.Id}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    System.IO.File.WriteAllBytes(dialog.FileName, bytes);
+                    MessageBox.Show("✅ Чек успешно сохранён!", "Успех",
+                                   MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении чека:\n{ex.Message}", "Ошибка",
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void AddAmount(decimal amount)

@@ -18,6 +18,7 @@ namespace BankApp.ViewModels
         // =====================
         public ObservableCollection<AccountItem> Accounts { get; set; }
         public ObservableCollection<TransferHistoryItem> Transfers { get; set; }
+        private readonly PdfReceiptService _receiptService = new PdfReceiptService();
 
         private AccountItem _selectedFromAccount;
         public AccountItem SelectedFromAccount
@@ -206,27 +207,54 @@ namespace BankApp.ViewModels
         // =====================
         public RelayCommand TransferCommand { get; set; }
         public RelayCommand GoBackCommand { get; set; }
-        public RelayCommand OpenTransferDetailsCommand { get; set; }
+        public RelayCommand ExportReceiptCommand { get; }
 
         public TransferViewModel()
         {
             Accounts = new ObservableCollection<AccountItem>();
-
             TransferCommand = new RelayCommand(Transfer);
             GoBackCommand = new RelayCommand(GoBack);
-
             Transfers = new ObservableCollection<TransferHistoryItem>();
-
-            OpenTransferDetailsCommand =
-                new RelayCommand(OpenTransferDetails);
+            ExportReceiptCommand = new RelayCommand(ExportReceipt);
 
             LoadAccounts();
             LoadTransfers();
         }
 
-        // =====================
-        // LOAD ACCOUNTS
-        // =====================
+        private void ExportReceipt()
+        {
+            if (SelectedTransfer == null)
+            {
+                MessageBox.Show("Выберите перевод для печати чека", "Внимание",
+                               MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                string clientName = Session.CurrentUser?.FullName ?? "Клиент";
+
+                var bytes = _receiptService.GenerateTransferReceipt(SelectedTransfer, clientName);
+
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PDF файлы (*.pdf)|*.pdf",
+                    FileName = $"Чек_перевод_{SelectedTransfer.Id}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    System.IO.File.WriteAllBytes(dialog.FileName, bytes);
+                    MessageBox.Show("✅ Чек успешно сохранён!", "Успех",
+                                   MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении чека:\n{ex.Message}", "Ошибка",
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private void LoadAccounts()
         {
             Accounts.Clear();
@@ -322,29 +350,6 @@ ORDER BY t.Date DESC", conn);
             }
 
             OnPropertyChanged(nameof(Transfers));
-        }
-
-        private void OpenTransferDetails()
-        {
-            if (SelectedTransfer == null)
-                return;
-
-            MessageBox.Show(
-                "💸 ДЕТАЛИ ПЕРЕВОДА\n\n" +
-
-                $"💰 Сумма:\n" +
-                $"{SelectedTransfer.AmountText}\n\n" +
-
-                $"📅 Дата:\n" +
-                $"{SelectedTransfer.DateText}\n\n" +
-
-                $"📝 Описание:\n" +
-                $"{SelectedTransfer.Description}",
-
-                "Перевод",
-
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
         }
 
         private void FindReceiverByPhone()

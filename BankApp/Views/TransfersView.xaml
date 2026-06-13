@@ -188,172 +188,74 @@
 						   HorizontalAlignment="Center"/>
 
 				<ListBox ItemsSource="{Binding Transfers}"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         SelectedItem="{Binding SelectedTransfer}"
-                         SelectionMode="Single">
+         BorderThickness="0"
+         Background="Transparent"
+         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+         SelectedItem="{Binding SelectedTransfer}"
+         SelectionMode="Single">
 
 					<ListBox.ItemContainerStyle>
 						<Style TargetType="ListBoxItem">
-							<Setter Property="Focusable"
-                Value="False"/>
-							<Setter Property="Background"
-                Value="Transparent"/>
-							<Setter Property="BorderThickness"
-                Value="0"/>
-							<Setter Property="Padding"
-                Value="0"/>
-							<Setter Property="Margin"
-                Value="0,0,0,14"/>
-							<Setter Property="HorizontalContentAlignment"
-                Value="Stretch"/>
-							<Setter Property="Template">
-								<Setter.Value>
-									<ControlTemplate TargetType="ListBoxItem">
-										<ContentPresenter/>
-									</ControlTemplate>
-								</Setter.Value>
-							</Setter>
+							<Setter Property="Focusable" Value="True"/>
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="BorderThickness" Value="0"/>
+							<Setter Property="Padding" Value="0"/>
+							<Setter Property="Margin" Value="0,0,0,14"/>
+							<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+
+							<!-- Визуальное выделение -->
+							<Style.Triggers>
+								<Trigger Property="IsSelected" Value="True">
+									<Setter Property="Background" Value="#E0F2FE"/>
+									<Setter Property="BorderBrush" Value="#3B82F6"/>
+									<Setter Property="BorderThickness" Value="3"/>
+								</Trigger>
+							</Style.Triggers>
 						</Style>
 					</ListBox.ItemContainerStyle>
+
 					<ListBox.ItemTemplate>
-
 						<DataTemplate>
-
 							<Border x:Name="Bubble"
-                Padding="18"
-                CornerRadius="22"
-                Margin="0,4"
-                Cursor="Hand"
-                MaxWidth="340">
+                    Padding="18"
+                    CornerRadius="22"
+                    Margin="0,4"
+                    Cursor="Hand"
+                    MaxWidth="340"
+                    Background="White">
 
-								<Border.InputBindings>
-
-									<MouseBinding MouseAction="LeftClick"
-                              Command="{Binding DataContext.OpenTransferDetailsCommand,
-                              RelativeSource={RelativeSource AncestorType=ListBox}}"
-                              CommandParameter="{Binding}"/>
-
-								</Border.InputBindings>
 								<Border.Effect>
-									<DropShadowEffect
-										BlurRadius="8"
-										ShadowDepth="2"
-										Opacity="0.10"/>
+									<DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.10"/>
 								</Border.Effect>
 
 								<StackPanel>
-
-									<!-- ICON -->
-									<TextBlock x:Name="IconText"
-                           FontSize="30"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"/>
-
-									<!-- TITLE -->
-									<TextBlock Text="{Binding Title}"
-                           FontWeight="Bold"
-                           FontSize="16"
-                           TextAlignment="Center"
-                           HorizontalAlignment="Center"/>
-
-									<!-- DESCRIPTION -->
-									<TextBlock Text="{Binding Description}"
-                           Margin="0,8,0,10"
-                           FontSize="13"
-                           TextWrapping="Wrap"
-                           TextAlignment="Center"
-                           Opacity="0.85"/>
-
-									<!-- AMOUNT -->
-									<TextBlock x:Name="AmountBlock"
-                           Text="{Binding AmountText}"
-                           FontWeight="Bold"
-                           FontSize="24"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"/>
-
-									<!-- DATE -->
-									<TextBlock Text="{Binding DateText}"
-                           Margin="0,10,0,0"
-                           FontSize="11"
-                           HorizontalAlignment="Center"
-                           Opacity="0.6"/>
-
+									<TextBlock x:Name="IconText" FontSize="30" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+									<TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
+									<TextBlock Text="{Binding Description}" Margin="0,8,0,10" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" Opacity="0.85"/>
+									<TextBlock x:Name="AmountBlock" Text="{Binding AmountText}" FontWeight="Bold" FontSize="24" HorizontalAlignment="Center"/>
+									<TextBlock Text="{Binding DateText}" Margin="0,10,0,0" FontSize="11" HorizontalAlignment="Center" Opacity="0.6"/>
 								</StackPanel>
-
 							</Border>
 
 							<DataTemplate.Triggers>
-
-								<!-- HOVER -->
-								<Trigger SourceName="Bubble"
-                     Property="IsMouseOver"
-                     Value="True">
-
-									<Setter TargetName="Bubble"
-                        Property="Opacity"
-                        Value="0.88"/>
-
+								<!-- Hover -->
+								<Trigger SourceName="Bubble" Property="IsMouseOver" Value="True">
+									<Setter TargetName="Bubble" Property="Opacity" Value="0.92"/>
 								</Trigger>
 
-								<!-- INCOMING -->
-								<DataTrigger Binding="{Binding IsIncoming}"
-                         Value="True">
-
-									<Setter TargetName="Bubble"
-                        Property="Background"
-                        Value="#DCFCE7"/>
-
-									<Setter TargetName="Bubble"
-                        Property="HorizontalAlignment"
-                        Value="Center"/>
-
-									<Setter TargetName="Bubble"
-                        Property="CornerRadius"
-                        Value="24,24,24,8"/>
-
-									<Setter TargetName="IconText"
-                        Property="Text"
-                        Value="📥"/>
-
-									<Setter TargetName="AmountBlock"
-                        Property="Foreground"
-                        Value="#16A34A"/>
-
+								<!-- Incoming / Outgoing стили -->
+								<DataTrigger Binding="{Binding IsIncoming}" Value="True">
+									<Setter TargetName="Bubble" Property="Background" Value="#DCFCE7"/>
+									<Setter TargetName="IconText" Property="Text" Value="📥"/>
+									<Setter TargetName="AmountBlock" Property="Foreground" Value="#16A34A"/>
 								</DataTrigger>
-
-								<!-- OUTGOING -->
-								<DataTrigger Binding="{Binding IsIncoming}"
-                         Value="False">
-
-									<Setter TargetName="Bubble"
-                        Property="Background"
-                        Value="#DBEAFE"/>
-
-									<Setter TargetName="Bubble"
-                        Property="HorizontalAlignment"
-                        Value="Center"/>
-
-									<Setter TargetName="Bubble"
-                        Property="CornerRadius"
-                        Value="24,24,8,24"/>
-
-									<Setter TargetName="IconText"
-                        Property="Text"
-                        Value="📤"/>
-
-									<Setter TargetName="AmountBlock"
-                        Property="Foreground"
-                        Value="#2563EB"/>
-
+								<DataTrigger Binding="{Binding IsIncoming}" Value="False">
+									<Setter TargetName="Bubble" Property="Background" Value="#DBEAFE"/>
+									<Setter TargetName="IconText" Property="Text" Value="📤"/>
+									<Setter TargetName="AmountBlock" Property="Foreground" Value="#2563EB"/>
 								</DataTrigger>
-
 							</DataTemplate.Triggers>
-
 						</DataTemplate>
-
 					</ListBox.ItemTemplate>
 				</ListBox>
 			</StackPanel>
@@ -377,6 +279,22 @@
 
 			
 		</Border>
+		<Button Content="🧾 Экспорт чека"
+                Grid.Column="0"
+				Width="140"
+				Height="44"
+                Padding="20,12"
+                FontSize="15"
+                FontWeight="SemiBold"
+                Background="#10B981"
+                Foreground="White"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Bottom"
+                BorderThickness="0"
+				Margin="20,0,0,10"
+                Cursor="Hand"
+                Command="{Binding ExportReceiptCommand}"/>
+		
 		<Button Content="↑"
         Width="44"
         Height="44"
