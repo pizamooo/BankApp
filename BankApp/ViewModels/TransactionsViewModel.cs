@@ -20,6 +20,7 @@ using iText.Layout.Properties;
 using Table = iText.Layout.Element.Table;
 using iText.IO.Font;
 using BankApp.Services;
+using System.Windows.Controls;
 
 namespace BankApp.ViewModels
 {
@@ -48,6 +49,39 @@ namespace BankApp.ViewModels
         {
             get => _accounts;
             set { _accounts = value; OnPropertyChanged(); }
+        }
+
+        private decimal? _minAmount;
+        public decimal? MinAmount
+        {
+            get => _minAmount;
+            set
+            {
+                _minAmount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal? _maxAmount;
+        public decimal? MaxAmount
+        {
+            get => _maxAmount;
+            set
+            {
+                _maxAmount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ComboBoxItem _sortOption;
+        public ComboBoxItem SortOption
+        {
+            get => _sortOption;
+            set
+            {
+                _sortOption = value;
+                OnPropertyChanged();
+            }
         }
 
         private Transaction _selectedTransaction;
@@ -435,6 +469,46 @@ t.IsCanceled,
                     x.Description.ToLower().Contains(SearchText.ToLower()));
             }
 
+            // фильтр суммы
+
+            if (MinAmount.HasValue)
+                data = data.Where(x =>
+                    x.Amount >= MinAmount.Value);
+
+            if (MaxAmount.HasValue)
+                data = data.Where(x =>
+                    x.Amount <= MaxAmount.Value);
+
+            // сортировка
+
+            if (SortOption != null)
+            {
+                switch (SortOption.Content.ToString())
+                {
+                    case "Сумма ↓":
+                        data = data.OrderByDescending(x => x.Amount);
+                        break;
+
+                    case "Сумма ↑":
+                        data = data.OrderBy(x => x.Amount);
+                        break;
+
+                    case "Количество операций ↓":
+                        data = data
+                            .GroupBy(x => x.AccountNumber)
+                            .OrderByDescending(g => g.Count())
+                            .SelectMany(g => g);
+                        break;
+
+                    case "Количество операций ↑":
+                        data = data
+                            .GroupBy(x => x.AccountNumber)
+                            .OrderBy(g => g.Count())
+                            .SelectMany(g => g);
+                        break;
+                }
+            }
+
             Transactions = new ObservableCollection<Transaction>(data);
             OnPropertyChanged(nameof(Transactions));
 
@@ -449,6 +523,10 @@ t.IsCanceled,
             DateFrom = null;
             DateTo = null;
             SearchText = "";
+
+            MinAmount = null;
+            MaxAmount = null;
+            SortOption = null;
 
             OnPropertyChanged(nameof(DateFrom));
             OnPropertyChanged(nameof(DateTo));

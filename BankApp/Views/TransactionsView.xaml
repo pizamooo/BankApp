@@ -306,188 +306,500 @@
 
 			<!-- FILTER -->
 			<Border Grid.Row="3"
-                    Background="White"
-                    CornerRadius="18"
-                    Padding="15"
-                    Margin="0 0 0 20">
+        Background="White"
+        CornerRadius="18"
+        Padding="15"
+        Margin="0 0 0 20">
 
-				<DockPanel LastChildFill="False">
-					<!-- SEARCH -->
-					<TextBox Width="150"
-                             Height="35"
-                             Margin="0 0 15 0"
-                             VerticalContentAlignment="Center"
-                             Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="Поиск по описанию"/>
+				<WrapPanel VerticalAlignment="Center">
 
-					<!-- DATES -->
-					<DatePicker Width="140"
-                                SelectedDate="{Binding DateFrom}"/>
+					<!-- Поиск -->
+					<StackPanel Margin="0,0,10,10">
 
-					<DatePicker Width="140"
-                                Margin="10 0"
-                                SelectedDate="{Binding DateTo}"/>
+						<TextBlock Text="Поиск"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
 
-					<!-- BUTTONS -->
-					<Button Content="Фильтр"
-                            Width="110"
-                            Margin="10 0"
-                            Command="{Binding FilterCommand}"/>
+						<TextBox Width="150"
+                 Height="35"
+                 VerticalContentAlignment="Center"
+                 Text="{Binding SearchText,
+                 UpdateSourceTrigger=PropertyChanged}"/>
 
-					<Button Content="Сброс"
-                            Width="100"
-                            Margin="5 0"
-                            Command="{Binding ResetFilterCommand}"/>
+					</StackPanel>
 
-					<Button Content="📊 Excel"
-                            Width="110"
-                            Margin="25 0 0 0"
-                            Command="{Binding ExportExcelCommand}"/>
+					<!-- Дата от -->
 
-					<Button Content="📄 PDF"
-                            Width="110"
-                            Margin="10 0 0 0"
-                            Command="{Binding ExportPdfCommand}"/>
+					<StackPanel Margin="0,0,10,10">
 
-				</DockPanel>
+						<TextBlock Text="Дата от"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
+
+						<DatePicker Width="140"
+                    Height="35"
+                    SelectedDate="{Binding DateFrom}"/>
+
+					</StackPanel>
+
+					<!-- Дата до -->
+
+					<StackPanel Margin="0,0,10,10">
+
+						<TextBlock Text="Дата до"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
+
+						<DatePicker Width="140"
+                    Height="35"
+                    SelectedDate="{Binding DateTo}"/>
+
+					</StackPanel>
+
+					<!-- Мин сумма -->
+
+					<StackPanel Margin="0,0,10,10">
+
+						<TextBlock Text="Мин. сумма"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
+
+						<TextBox Width="100"
+                 Height="35"
+                 VerticalContentAlignment="Center"
+                 Text="{Binding MinAmount}"/>
+
+					</StackPanel>
+
+					<!-- Макс сумма -->
+
+					<StackPanel Margin="0,0,10,10">
+
+						<TextBlock Text="Макс. сумма"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
+
+						<TextBox Width="100"
+                 Height="35"
+                 VerticalContentAlignment="Center"
+                 Text="{Binding MaxAmount}"/>
+
+					</StackPanel>
+
+					<!-- Сортировка -->
+
+					<StackPanel Margin="0,0,10,10">
+
+						<TextBlock Text="Сортировка"
+                   FontSize="12"
+                   Foreground="Gray"
+                   Margin="3,0"/>
+
+						<ComboBox Width="180"
+                  Height="35"
+                  SelectedItem="{Binding SortOption}">
+
+							<ComboBoxItem Content="Без сортировки"/>
+							<ComboBoxItem Content="Сумма ↓"/>
+							<ComboBoxItem Content="Сумма ↑"/>
+
+						</ComboBox>
+
+					</StackPanel>
+
+					<!-- Кнопки -->
+
+					<StackPanel Orientation="Horizontal"
+                VerticalAlignment="Bottom"
+                Margin="15,18,0,0">
+
+						<Button Content="🔍 Фильтр"
+                Width="110"
+                Height="35"
+                Margin="0,0,10,0"
+                Command="{Binding FilterCommand}"/>
+
+						<Button Content="↺ Сброс"
+                Width="110"
+                Height="35"
+                Margin="0,0,10,0"
+                Command="{Binding ResetFilterCommand}"/>
+
+						<Button Content="📊 Excel"
+                Width="110"
+                Height="35"
+                Margin="0,0,10,0"
+                Command="{Binding ExportExcelCommand}"/>
+
+						<Button Content="📄 PDF"
+                Width="110"
+                Height="35"
+                Command="{Binding ExportPdfCommand}"/>
+
+					</StackPanel>
+
+				</WrapPanel>
 
 			</Border>
 
 			<!-- TABLE -->
 			<Border Grid.Row="4"
-                    Background="White"
-                    CornerRadius="18"
-                    Padding="15">
+        Background="White"
+        CornerRadius="18"
+        Padding="20">
 
-				<DataGrid ItemsSource="{Binding Transactions}"
-						  SelectedItem="{Binding SelectedTransaction}"
-						  AlternatingRowBackground="#F9FAFB"
-						  CanUserResizeColumns="False"
-						  CanUserAddRows="False"
-						  SelectionMode="Single"
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-						  RowBackground="White"
-                          GridLinesVisibility="None"
-                          RowHeight="40"
-                          IsReadOnly="True"
-                          BorderThickness="0"
-                          FontSize="14"
-                          Background="White">
+				<StackPanel>
 
-					<DataGrid.Columns>
+					<DockPanel Margin="0,0,0,15">
 
-						<DataGridTextColumn Header="ID"
-                                            Binding="{Binding Id}"
-                                            Width="40"/>
+						<TextBlock Text="История операций"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       DockPanel.Dock="Left"/>
 
-						<DataGridTextColumn Header="Счет"
-                                            Binding="{Binding AccountNumber}"
-                                            Width="130"/>
+						<TextBlock Text="{Binding Transactions.Count,
+                        StringFormat=Операций: {0}}"
+                       Foreground="Gray"
+                       DockPanel.Dock="Right"/>
+					</DockPanel>
 
-						<!-- AMOUNT -->
-						<DataGridTextColumn Header="Сумма"
-                                            Width="120">
+					<ScrollViewer VerticalScrollBarVisibility="Auto"
+              MaxHeight="500">
 
-							<DataGridTextColumn.Binding>
-								<Binding Path="Amount"
-                                         StringFormat="{}{0:N2} ₽"/>
-							</DataGridTextColumn.Binding>
+						<ListBox ItemsSource="{Binding Transactions}"
+             SelectedItem="{Binding SelectedTransaction}"
+             BorderThickness="0"
+             Background="Transparent">
 
-							<DataGridTextColumn.ElementStyle>
-								<Style TargetType="TextBlock">
+							<!-- СТИЛЬ КАРТОЧЕК -->
+							<ListBox.ItemContainerStyle>
 
-									<Setter Property="FontWeight"
-                                            Value="Bold"/>
+								<Style TargetType="ListBoxItem">
+
+									<Setter Property="Padding"
+                Value="0"/>
+
+									<Setter Property="Margin"
+                Value="0,0,0,12"/>
+
+									<Setter Property="BorderThickness"
+                Value="0"/>
+
+									<Setter Property="HorizontalContentAlignment"
+                Value="Stretch"/>
+
+									<Setter Property="Background"
+                Value="Transparent"/>
+
+									<Setter Property="Template">
+
+										<Setter.Value>
+
+											<ControlTemplate TargetType="ListBoxItem">
+
+												<Border x:Name="ItemBorder"
+                            Background="#F8FAFC"
+                            CornerRadius="14"
+                            Padding="15">
+
+													<ContentPresenter/>
+
+												</Border>
+
+												<ControlTemplate.Triggers>
+
+													<!-- выделенная карточка -->
+
+													<Trigger Property="IsSelected"
+                                 Value="True">
+
+														<Setter TargetName="ItemBorder"
+                                    Property="Background"
+                                    Value="#DBEAFE"/>
+
+														<Setter TargetName="ItemBorder"
+                                    Property="BorderBrush"
+                                    Value="#2563EB"/>
+
+														<Setter TargetName="ItemBorder"
+                                    Property="BorderThickness"
+                                    Value="2"/>
+
+													</Trigger>
+
+												</ControlTemplate.Triggers>
+
+											</ControlTemplate>
+
+										</Setter.Value>
+
+									</Setter>
+
+									<!-- ВСЕ TRIGGERS ТОЛЬКО ЗДЕСЬ -->
 
 									<Style.Triggers>
 
-										<DataTrigger Binding="{Binding Type}"
+										<!-- затемняем отмененные -->
+
+										<DataTrigger Binding="{Binding IsCanceled}"
+                         Value="True">
+
+											<Setter Property="Opacity"
+                        Value="0.6"/>
+
+										</DataTrigger>
+
+									</Style.Triggers>
+
+								</Style>
+
+							</ListBox.ItemContainerStyle>
+
+
+							<!-- СОДЕРЖИМОЕ КАРТОЧКИ -->
+
+							<ListBox.ItemTemplate>
+
+								<DataTemplate>
+
+									<Grid>
+
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="65"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="Auto"/>
+										</Grid.ColumnDefinitions>
+
+										<!-- ИКОНКА -->
+
+										<Border Width="50"
+                            Height="50"
+                            CornerRadius="25"
+                            Background="#EEF2FF">
+
+											<TextBlock FontSize="22"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+
+												<TextBlock.Style>
+
+													<Style TargetType="TextBlock">
+
+														<Setter Property="Text"
+                                            Value="💳"/>
+
+														<Style.Triggers>
+
+															<DataTrigger Binding="{Binding Type}"
                                                      Value="Пополнение">
 
-											<Setter Property="Foreground"
-                                                    Value="#16A34A"/>
+																<Setter Property="Text"
+                                                    Value="📈"/>
 
-										</DataTrigger>
+															</DataTrigger>
 
-										<DataTrigger Binding="{Binding Type}"
+															<DataTrigger Binding="{Binding Type}"
                                                      Value="Списание">
 
-											<Setter Property="Foreground"
-                                                    Value="#DC2626"/>
+																<Setter Property="Text"
+                                                    Value="💸"/>
 
-										</DataTrigger>
+															</DataTrigger>
 
-									</Style.Triggers>
+														</Style.Triggers>
 
-								</Style>
-							</DataGridTextColumn.ElementStyle>
+													</Style>
 
-						</DataGridTextColumn>
+												</TextBlock.Style>
 
-						<DataGridTextColumn Header="Тип"
-                                            Binding="{Binding Type}"
-                                            Width="140"/>
+											</TextBlock>
 
-						<DataGridTextColumn Header="Дата"
-                                            Width="180">
+										</Border>
 
-							<DataGridTextColumn.Binding>
-								<Binding Path="Date"
-                                         StringFormat="dd.MM.yyyy HH:mm"/>
-							</DataGridTextColumn.Binding>
 
-						</DataGridTextColumn>
+										<!-- ИНФОРМАЦИЯ -->
 
-						<DataGridTextColumn Header="Описание"
-                                            Binding="{Binding Description}"
-                                            Width="*"/>
+										<StackPanel Grid.Column="1"
+                                Margin="15,0">
 
-						<DataGridTextColumn Header="Статус"
-                    Width="120">
+											<TextBlock Text="{Binding AccountNumber}"
+                                   FontWeight="Bold"/>
 
-							<DataGridTextColumn.ElementStyle>
-								<Style TargetType="TextBlock">
+											<TextBlock Text="{Binding Description}"
+                                   Foreground="#64748B"/>
 
-									<Setter Property="Text" Value="Активна"/>
+											<TextBlock Text="{Binding Date,
+                                   StringFormat=dd.MM.yyyy HH:mm}"
+                                   FontSize="11"
+                                   Foreground="#94A3B8"/>
 
-									<Style.Triggers>
+										</StackPanel>
 
-										<DataTrigger Binding="{Binding IsCanceled}" Value="True">
-											<Setter Property="Text" Value="Отменена"/>
-											<Setter Property="Foreground" Value="Red"/>
-											<Setter Property="FontWeight" Value="Bold"/>
-										</DataTrigger>
 
-									</Style.Triggers>
+										<!-- ПРАВАЯ ЧАСТЬ -->
 
-								</Style>
+										<StackPanel Grid.Column="2">
 
-							</DataGridTextColumn.ElementStyle>
+											<!-- сумма -->
 
-						</DataGridTextColumn>
+											<TextBlock FontSize="18"
+                                   FontWeight="Bold">
 
-					</DataGrid.Columns>
-					<DataGrid.RowStyle>
-						<Style TargetType="DataGridRow">
+												<TextBlock.Style>
 
-							<Style.Triggers>
+													<Style TargetType="TextBlock">
 
-								<DataTrigger Binding="{Binding IsCanceled}" Value="True">
-									<Setter Property="Opacity" Value="0.45"/>
-								</DataTrigger>
+														<Setter Property="Foreground"
+                                            Value="#DC2626"/>
 
-							</Style.Triggers>
+														<Setter Property="Text"
+                                            Value="{Binding Amount,
+                                            StringFormat=-{0:N2} ₽}"/>
 
-						</Style>
-					</DataGrid.RowStyle>
+														<Style.Triggers>
 
-				</DataGrid>
+															<DataTrigger Binding="{Binding Type}"
+                                                     Value="Пополнение">
+
+																<Setter Property="Foreground"
+                                                    Value="#16A34A"/>
+
+																<Setter Property="Text"
+                                                    Value="{Binding Amount,
+                                                    StringFormat=+{0:N2} ₽}"/>
+
+															</DataTrigger>
+
+														</Style.Triggers>
+
+													</Style>
+
+												</TextBlock.Style>
+
+											</TextBlock>
+
+
+											<!-- тип -->
+
+											<Border Padding="8,3"
+                                Margin="0,8,0,0"
+                                CornerRadius="10">
+
+												<Border.Style>
+
+													<Style TargetType="Border">
+
+														<Setter Property="Background"
+                                            Value="#FEE2E2"/>
+
+														<Style.Triggers>
+
+															<DataTrigger Binding="{Binding Type}"
+                                                     Value="Пополнение">
+
+																<Setter Property="Background"
+                                                    Value="#DCFCE7"/>
+
+															</DataTrigger>
+
+														</Style.Triggers>
+
+													</Style>
+
+												</Border.Style>
+
+												<TextBlock Text="{Binding Type}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"/>
+
+											</Border>
+
+
+											<!-- статус -->
+
+											<Border Padding="8,3"
+                                Margin="0,6,0,0"
+                                CornerRadius="10">
+
+												<Border.Style>
+
+													<Style TargetType="Border">
+
+														<Setter Property="Background"
+                                            Value="#DCFCE7"/>
+
+														<Style.Triggers>
+
+															<DataTrigger Binding="{Binding IsCanceled}"
+                                                     Value="True">
+
+																<Setter Property="Background"
+                                                    Value="#FEE2E2"/>
+
+															</DataTrigger>
+
+														</Style.Triggers>
+
+													</Style>
+
+												</Border.Style>
+
+												<TextBlock FontSize="11"
+                                       FontWeight="Bold">
+
+													<TextBlock.Style>
+
+														<Style TargetType="TextBlock">
+
+															<Setter Property="Text"
+                                                Value="✔ Активна"/>
+
+															<Setter Property="Foreground"
+                                                Value="#16A34A"/>
+
+															<Style.Triggers>
+
+																<DataTrigger Binding="{Binding IsCanceled}"
+                                                         Value="True">
+
+																	<Setter Property="Text"
+                                                        Value="✖ Отменена"/>
+
+																	<Setter Property="Foreground"
+                                                        Value="#DC2626"/>
+
+																</DataTrigger>
+
+															</Style.Triggers>
+
+														</Style>
+
+													</TextBlock.Style>
+
+												</TextBlock>
+
+											</Border>
+
+										</StackPanel>
+
+									</Grid>
+
+								</DataTemplate>
+
+							</ListBox.ItemTemplate>
+
+						</ListBox>
+
+					</ScrollViewer>
+
+				</StackPanel>
 
 			</Border>
-			<TextBlock Text="Поиск по описанию"
-           Foreground="Gray"
-           FontSize="12" Margin="15,3,875,75" Grid.Row="3"/>
 
 		</Grid>
 

@@ -172,55 +172,150 @@
 
 					</DockPanel>
 
-					<DataGrid ItemsSource="{Binding LastTransactions}"
-                              AutoGenerateColumns="False"
-                              HeadersVisibility="Column"
-                              CanUserAddRows="False"
-							  GridLinesVisibility="None"
-                              IsReadOnly="True"
-                              BorderThickness="0"
-                              RowHeight="42"
-                              FontSize="14"
-                              Background="White">
+					<ScrollViewer VerticalScrollBarVisibility="Auto"
+              MaxHeight="500">
 
-						<DataGrid.Columns>
+						<ItemsControl ItemsSource="{Binding LastTransactions}">
 
-							<DataGridTextColumn Header="ID"
-                                                Binding="{Binding Id}"
-                                                Width="70"/>
+							<ItemsControl.ItemTemplate>
 
-							<DataGridTextColumn Header="Счет"
-                                                Binding="{Binding AccountNumber}"
-                                                Width="180"/>
+								<DataTemplate>
 
-							<DataGridTextColumn Header="Сумма"
-                                                Binding="{Binding Amount,StringFormat={}{0:N2}}"
-                                                Width="130"/>
+									<Border Background="#F8FAFC"
+                        CornerRadius="14"
+                        Margin="0,0,0,12"
+                        Padding="15">
 
-							<DataGridTextColumn Header="Тип"
-                                                Binding="{Binding Type}"
-                                                Width="150"/>
+										<Grid>
 
-							<DataGridTextColumn Header="Дата"
-                                                Binding="{Binding Date,StringFormat=dd.MM.yyyy HH:mm}"
-                                                Width="190"/>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="60"/>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="Auto"/>
+											</Grid.ColumnDefinitions>
 
-							<DataGridTemplateColumn Header="Описание" Width="*">
-								<DataGridTemplateColumn.CellTemplate>
-									<DataTemplate>
-										<TextBlock Text="{Binding Description}"
-                               TextWrapping="Wrap"
-                               TextTrimming="CharacterEllipsis"
-                               Margin="8,4"
-                               MaxHeight="80"
-                               ToolTip="{Binding Description}"/>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellTemplate>
-							</DataGridTemplateColumn>
+											<!-- Иконка -->
+											<Border Width="45"
+                                Height="45"
+                                CornerRadius="22"
+                                Background="#E0E7FF"
+                                VerticalAlignment="Center">
 
-						</DataGrid.Columns>
+												<TextBlock FontSize="20"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
 
-					</DataGrid>
+													<TextBlock.Style>
+														<Style TargetType="TextBlock">
+
+															<Setter Property="Text"
+                Value="💳"/>
+
+															<Style.Triggers>
+
+																<DataTrigger Binding="{Binding Type}"
+                         Value="Пополнение">
+																	<Setter Property="Text"
+                        Value="📈"/>
+																</DataTrigger>
+
+																<DataTrigger Binding="{Binding Type}"
+                         Value="Списание">
+																	<Setter Property="Text"
+                        Value="💸"/>
+																</DataTrigger>
+
+															</Style.Triggers>
+
+														</Style>
+													</TextBlock.Style>
+
+												</TextBlock>
+
+											</Border>
+
+											<!-- Информация -->
+											<StackPanel Grid.Column="1"
+                                    Margin="15,0">
+
+												<TextBlock Text="{Binding AccountNumber}"
+                                       FontWeight="Bold"
+                                       FontSize="15"/>
+
+												<TextBlock Text="{Binding Description}"
+                                       Foreground="#667085"
+                                       FontSize="13"
+                                       TextTrimming="CharacterEllipsis"/>
+
+												<TextBlock Text="{Binding Date,
+                                              StringFormat=dd.MM.yyyy HH:mm}"
+                                       Foreground="#94A3B8"
+                                       FontSize="11"/>
+											</StackPanel>
+
+											<!-- Сумма -->
+											<StackPanel Grid.Column="2"
+                                    HorizontalAlignment="Right">
+
+												<TextBlock FontSize="18"
+                                       FontWeight="Bold">
+
+													<TextBlock.Style>
+
+														<Style TargetType="TextBlock">
+
+															<Setter Property="Foreground"
+                Value="#DC2626"/>
+
+															<Setter Property="Text"
+                Value="{Binding Amount,
+                StringFormat=-{0:N2} ₽}"/>
+
+															<Style.Triggers>
+
+																<DataTrigger Binding="{Binding Type}"
+                         Value="Пополнение">
+
+																	<Setter Property="Foreground"
+                        Value="#16A34A"/>
+
+																	<Setter Property="Text"
+                        Value="{Binding Amount,
+                        StringFormat=+{0:N2} ₽}"/>
+
+																</DataTrigger>
+
+															</Style.Triggers>
+
+														</Style>
+
+													</TextBlock.Style>
+
+												</TextBlock>
+
+												<Border Background="#EEF2FF"
+                                    Padding="6,3"
+                                    CornerRadius="10"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,5,0,0">
+
+													<TextBlock Text="{Binding Type}"
+                                           FontSize="11"/>
+												</Border>
+
+											</StackPanel>
+
+										</Grid>
+
+									</Border>
+
+								</DataTemplate>
+
+							</ItemsControl.ItemTemplate>
+
+						</ItemsControl>
+
+					</ScrollViewer>
 
 				</StackPanel>
 

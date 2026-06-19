@@ -852,9 +852,19 @@ VALUES
         // ================= CLOSE ALL =================
         private void CloseAllAccounts()
         {
-            if (SelectedClient == null)
+            // сначала пробуем взять клиента из ComboBox
+            int? clientId = SelectedClient?.Id;
+
+            // если клиент не выбран — берем из выбранного счета
+            if (clientId == null && SelectedAccount != null)
             {
-                MessageBox.Show("Выберите клиента!");
+                clientId = SelectedAccount.ClientId;
+            }
+
+            if (clientId == null)
+            {
+                MessageBox.Show(
+                    "Выберите счет или клиента!");
                 return;
             }
 
@@ -862,28 +872,29 @@ VALUES
             {
                 conn.Open();
 
-                // проверяем есть ли счета с деньгами
+                // есть ли счета с деньгами
                 string checkQuery = @"
 SELECT COUNT(*)
 FROM Accounts
-WHERE ClientId = @ClientId
-AND Balance > 0
-AND IsClosed = 0";
+WHERE ClientId=@ClientId
+AND Balance>0
+AND IsClosed=0";
 
                 SqlCommand checkCmd =
                     new SqlCommand(checkQuery, conn);
 
                 checkCmd.Parameters.AddWithValue(
                     "@ClientId",
-                    SelectedClient.Id);
+                    clientId);
 
                 int count =
-                    Convert.ToInt32(checkCmd.ExecuteScalar());
+                    Convert.ToInt32(
+                        checkCmd.ExecuteScalar());
 
                 if (count > 0)
                 {
                     MessageBox.Show(
-                        "У клиента есть счета с положительным балансом!");
+                        "Нельзя закрыть счета. У клиента есть положительный баланс!");
 
                     return;
                 }
@@ -891,20 +902,24 @@ AND IsClosed = 0";
                 string query = @"
 UPDATE Accounts
 SET IsClosed = 1
-WHERE ClientId = @ClientId
-AND IsClosed = 0";
+WHERE ClientId=@ClientId
+AND IsClosed=0";
 
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd =
+                    new SqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue(
                     "@ClientId",
-                    SelectedClient.Id);
+                    clientId);
 
                 int rows = cmd.ExecuteNonQuery();
 
-                LogService.Log("Закрытие всех счетов", $"Оператор закрыл все счета клиента ID {SelectedClient.Id}. Закрыто счетов: {rows}");
+                LogService.Log(
+                    "Закрытие всех счетов",
+                    $"Закрыты все счета клиента ID={clientId}. Закрыто: {rows}");
 
-                MessageBox.Show($"Закрыто счетов: {rows}");
+                MessageBox.Show(
+                    $"Успешно закрыто счетов: {rows}");
             }
 
             LoadAccounts();

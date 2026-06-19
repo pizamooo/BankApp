@@ -134,109 +134,252 @@
 				<!-- GRID -->
 
 				<DataGrid ItemsSource="{Binding Users}"
-                          SelectedItem="{Binding SelectedUser}"
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="None"
-                          BorderThickness="0"
-                          RowHeight="42"
-                          IsReadOnly="True">
+          SelectedItem="{Binding SelectedUser}"
+          AutoGenerateColumns="False"
+          HeadersVisibility="Column"
+          GridLinesVisibility="None"
+          BorderThickness="0"
+          RowHeight="50"
+          FontSize="14"
+          IsReadOnly="True"
+          AlternatingRowBackground="#F9FAFB"
+          RowBackground="White"
+          CanUserResizeColumns="False">
+
+					<!-- СТИЛЬ ЗАГОЛОВКОВ -->
+					<DataGrid.ColumnHeaderStyle>
+						<Style TargetType="DataGridColumnHeader">
+							<Setter Property="Background" Value="#F3F4F6"/>
+							<Setter Property="Foreground" Value="#374151"/>
+							<Setter Property="FontWeight" Value="SemiBold"/>
+							<Setter Property="Padding" Value="12"/>
+							<Setter Property="BorderThickness" Value="0"/>
+							<Setter Property="Height" Value="45"/>
+						</Style>
+					</DataGrid.ColumnHeaderStyle>
+
+					<!-- СТИЛЬ СТРОК -->
+					<DataGrid.RowStyle>
+						<Style TargetType="DataGridRow">
+
+							<Setter Property="Background"
+                    Value="White"/>
+
+							<Setter Property="Cursor"
+                    Value="Hand"/>
+
+							<Setter Property="Margin"
+                    Value="0 0 0 2"/>
+
+							<Style.Triggers>
+
+								<!-- Наведение -->
+								<Trigger Property="IsMouseOver"
+                         Value="True">
+
+									<Setter Property="Background"
+                            Value="#EEF4FF"/>
+
+								</Trigger>
+
+								<!-- Выбрана -->
+								<Trigger Property="IsSelected"
+                         Value="True">
+
+									<Setter Property="Background"
+                            Value="#DBEAFE"/>
+
+								</Trigger>
+
+							</Style.Triggers>
+
+						</Style>
+					</DataGrid.RowStyle>
 
 					<DataGrid.Columns>
 
+						<!-- ID -->
 						<DataGridTextColumn Header="ID"
-                                            Width="80"
-                                            Binding="{Binding Id}"/>
+                            Width="80"
+                            Binding="{Binding Id}"/>
 
+						<!-- ФИО -->
 						<DataGridTextColumn Header="ФИО"
-                                            Width="*"
-                                            Binding="{Binding FullName}"/>
+                            Width="*"
+                            Binding="{Binding FullName}"/>
 
+						<!-- Телефон -->
 						<DataGridTextColumn Header="Телефон"
-                                            Width="180"
-                                            Binding="{Binding Phone}"/>
+                            Width="180"
+                            Binding="{Binding Phone}"/>
 
+						<!-- Роль -->
 						<DataGridTemplateColumn Header="Роль"
-                        Width="160">
+                                Width="160">
+
 							<DataGridTemplateColumn.CellTemplate>
+
 								<DataTemplate>
-									<Border Padding="10 4"
-                    CornerRadius="10">
+
+									<Border Padding="10 5"
+                            CornerRadius="12"
+                            HorizontalAlignment="Center">
+
 										<Border.Style>
-											<Style TargetType="Border">
-												<Setter Property="Background"
-                                Value="#DBEAFE"/>
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding Role}"
-                                         Value="Admin">
-														<Setter Property="Background"
-                                        Value="#FECACA"/>
-													</DataTrigger>
-													<DataTrigger Binding="{Binding Role}"
-                                         Value="Operator">
-														<Setter Property="Background"
-                                        Value="#DDD6FE"/>
 
-													</DataTrigger>
-													<DataTrigger Binding="{Binding Role}"
-                                         Value="Client">
-														<Setter Property="Background"
-                                        Value="#DCFCE7"/>
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</Border.Style>
-										<TextBlock Text="{Binding Role}"
-                           FontWeight="SemiBold"/>
-									</Border>
-								</DataTemplate>
-							</DataGridTemplateColumn.CellTemplate>
-						</DataGridTemplateColumn>
-
-						<DataGridTextColumn Header="Счетов"
-                    Width="120"
-                    Binding="{Binding AccountsCount}"/>
-
-						<DataGridTemplateColumn Header="Статус"
-                        Width="160">
-							<DataGridTemplateColumn.CellTemplate>
-								<DataTemplate>
-									<Border Padding="10 4"
-                    CornerRadius="10">
-										<Border.Style>
 											<Style TargetType="Border">
 
 												<Setter Property="Background"
-                                Value="#DCFCE7"/>
+                                        Value="#DBEAFE"/>
+
 												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsBlocked}"
-                                         Value="True">
+
+													<DataTrigger Binding="{Binding Role}"
+                                                 Value="Admin">
+
 														<Setter Property="Background"
-                                        Value="#FEE2E2"/>
+                                                Value="#FEE2E2"/>
+
 													</DataTrigger>
+
+													<DataTrigger Binding="{Binding Role}"
+                                                 Value="Operator">
+
+														<Setter Property="Background"
+                                                Value="#EDE9FE"/>
+
+													</DataTrigger>
+
+													<DataTrigger Binding="{Binding Role}"
+                                                 Value="Client">
+
+														<Setter Property="Background"
+                                                Value="#DCFCE7"/>
+
+													</DataTrigger>
+
 												</Style.Triggers>
+
 											</Style>
+
 										</Border.Style>
+
 										<TextBlock FontWeight="SemiBold">
+
 											<TextBlock.Style>
+
 												<Style TargetType="TextBlock">
 
 													<Setter Property="Text"
-                                    Value="Активен"/>
+                                            Value="👤 Клиент"/>
+
 													<Style.Triggers>
-														<DataTrigger Binding="{Binding IsBlocked}"
-                                             Value="True">
+
+														<DataTrigger Binding="{Binding Role}"
+                                                     Value="Admin">
 
 															<Setter Property="Text"
-                                            Value="Заблокирован"/>
+                                                    Value="👑 Админ"/>
+
 														</DataTrigger>
+
+														<DataTrigger Binding="{Binding Role}"
+                                                     Value="Operator">
+
+															<Setter Property="Text"
+                                                    Value="⚙ Оператор"/>
+
+														</DataTrigger>
+
 													</Style.Triggers>
+
 												</Style>
+
 											</TextBlock.Style>
+
 										</TextBlock>
+
 									</Border>
+
 								</DataTemplate>
+
 							</DataGridTemplateColumn.CellTemplate>
+
+						</DataGridTemplateColumn>
+
+						<!-- Счета -->
+						<DataGridTextColumn Header="Счетов"
+                            Width="100"
+                            Binding="{Binding AccountsCount}"/>
+
+						<!-- Статус -->
+						<DataGridTemplateColumn Header="Статус"
+                                Width="160">
+
+							<DataGridTemplateColumn.CellTemplate>
+
+								<DataTemplate>
+
+									<Border Padding="10 5"
+                            CornerRadius="12"
+                            HorizontalAlignment="Center">
+
+										<Border.Style>
+
+											<Style TargetType="Border">
+
+												<Setter Property="Background"
+                                        Value="#DCFCE7"/>
+
+												<Style.Triggers>
+
+													<DataTrigger Binding="{Binding IsBlocked}"
+                                                 Value="True">
+
+														<Setter Property="Background"
+                                                Value="#FEE2E2"/>
+
+													</DataTrigger>
+
+												</Style.Triggers>
+
+											</Style>
+
+										</Border.Style>
+
+										<TextBlock FontWeight="SemiBold">
+
+											<TextBlock.Style>
+
+												<Style TargetType="TextBlock">
+
+													<Setter Property="Text"
+                                            Value="🟢 Активен"/>
+
+													<Style.Triggers>
+
+														<DataTrigger Binding="{Binding IsBlocked}"
+                                                     Value="True">
+
+															<Setter Property="Text"
+                                                    Value="🔴 Заблокирован"/>
+
+														</DataTrigger>
+
+													</Style.Triggers>
+
+												</Style>
+
+											</TextBlock.Style>
+
+										</TextBlock>
+
+									</Border>
+
+								</DataTemplate>
+
+							</DataGridTemplateColumn.CellTemplate>
+
 						</DataGridTemplateColumn>
 
 					</DataGrid.Columns>

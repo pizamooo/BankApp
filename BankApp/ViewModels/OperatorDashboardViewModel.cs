@@ -129,13 +129,13 @@ namespace BankApp.ViewModels
         SELECT ISNULL(SUM(Amount),0)
         FROM Transactions
         WHERE AccountId = @accountId
-        AND Type = 'Income'";
+        AND Category IN ('Deposit','TransferIn')";
 
                 string expenseQuery = @"
         SELECT ISNULL(SUM(Amount),0)
         FROM Transactions
         WHERE AccountId = @accountId
-        AND Type = 'Expense'";
+        AND Category IN ('Withdraw','TransferOut')";
 
                 SqlCommand incomeCmd = new SqlCommand(incomeQuery, conn);
                 SqlCommand expenseCmd = new SqlCommand(expenseQuery, conn);

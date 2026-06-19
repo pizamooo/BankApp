@@ -161,6 +161,32 @@ RelativeSource={RelativeSource AncestorType=Window}}">
 
 					</StackPanel>
 				</Button>
+
+				<Button Width="160"
+        Height="80"
+        Margin="0,0,15,15"
+        Background="#FEE2E2"
+        BorderBrush="#DC2626"
+        BorderThickness="1"
+        Command="{Binding DataContext.LogoutCommand,
+        RelativeSource={RelativeSource AncestorType=Window}}">
+
+					<StackPanel VerticalAlignment="Center">
+
+						<TextBlock Text="🚪"
+                   Foreground="Red"
+                   FontSize="24"
+                   HorizontalAlignment="Center"/>
+
+						<TextBlock Text="Выход"
+                   Foreground="Red"
+                   FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   Margin="0,5,0,0"/>
+
+					</StackPanel>
+
+				</Button>
 			</WrapPanel>
 
 			<TextBlock Text="Шаблоны платежей"
