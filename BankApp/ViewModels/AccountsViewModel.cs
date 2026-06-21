@@ -59,7 +59,18 @@ namespace BankApp.ViewModels
             get => _phoneSearch;
             set
             {
+                if (value != null)
+                {
+                    // оставляем только цифры
+                    value = Regex.Replace(value, @"[^0-9]", "");
+
+                    // максимум 11 цифр
+                    if (value.Length > 11)
+                        value = value.Substring(0, 11);
+                }
+
                 _phoneSearch = value;
+
                 OnPropertyChanged();
 
                 FilterClients();

@@ -32,24 +32,48 @@ namespace BankApp.Views
             switch (_template.Category)
             {
                 case "Mobile":
+
                     InputLabel.Text = "Номер телефона";
+
                     InputBox.Text = "+7";
+
+                    SecondLabel.Text = "Оператор";
+
+                    SecondBox.Text = "МТС";
+
                     break;
+
 
                 case "Internet":
+
                     InputLabel.Text = "Номер договора";
+
+                    SecondLabel.Text = "Провайдер";
+
+                    SecondBox.Text = "Ростелеком";
+
                     break;
 
-                case "Steam":
-                    InputLabel.Text = "Steam Login";
-                    break;
 
                 case "Housing":
+
                     InputLabel.Text = "Лицевой счет";
+
+                    SecondLabel.Text = "Адрес";
+
+                    SecondBox.Text =
+                        "ул. Зелинского, д. 15";
+
                     break;
 
+
                 default:
+
                     InputLabel.Text = "Введите данные";
+
+                    AdditionalPanel.Visibility =
+                        Visibility.Collapsed;
+
                     break;
             }
         }
@@ -60,23 +84,52 @@ namespace BankApp.Views
 
         private void InputBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            // телефон → только цифры
+            TextBox textBox = sender as TextBox;
+
+            string newText =
+                textBox.Text.Insert(
+                    textBox.SelectionStart,
+                    e.Text);
+
+            // Телефон: +7XXXXXXXXXX
             if (_template.Category == "Mobile")
             {
-                e.Handled = !Regex.IsMatch(e.Text, "[0-9]");
+                // разрешаем только цифры
+                if (!Regex.IsMatch(e.Text, @"^\d$"))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // +7 уже занимает 2 символа
+                // максимум: +7 + 10 цифр = 12
+                e.Handled = newText.Length > 12;
             }
 
-            // договор/счет → только цифры
-            else if (_template.Category == "Internet"
-                  || _template.Category == "Housing")
+            // Номер договора
+            else if (_template.Category == "Internet")
             {
-                e.Handled = !Regex.IsMatch(e.Text, "[0-9]");
+                if (!Regex.IsMatch(e.Text, @"^\d$"))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // максимум 10 цифр
+                e.Handled = newText.Length > 10;
             }
 
-            // steam → буквы/цифры/_
-            else if (_template.Category == "Steam")
+            // Лицевой счет
+            else if (_template.Category == "Housing")
             {
-                e.Handled = !Regex.IsMatch(e.Text, "[a-zA-Z0-9_]");
+                if (!Regex.IsMatch(e.Text, @"^\d$"))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // максимум 12 цифр
+                e.Handled = newText.Length > 12;
             }
         }
 
@@ -223,7 +276,7 @@ VALUES
 
                     transactionCmd.Parameters.AddWithValue(
                         "@description",
-                        $"{_template.Name}: {target}");
+                        $"{_template.Name}: {target} ({SecondBox.Text})");
 
                     transactionCmd.ExecuteNonQuery();
 

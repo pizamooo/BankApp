@@ -496,22 +496,6 @@ ORDER BY t.Date DESC", conn);
                     });
                 })
             });
-
-            Templates.Add(new TemplateItem
-            {
-                Name = "Steam",
-                Icon = "🎮",
-                Category = "Steam",
-                Command = new RelayCommand(() =>
-                {
-                    OpenTemplatePayment(new TemplateItem
-                    {
-                        Name = "Steam",
-                        Icon = "🎮",
-                        Category = "Steam",
-                    });
-                })
-            });
         }
 
         private void OpenTemplatePayment(TemplateItem template)

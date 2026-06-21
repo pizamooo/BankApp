@@ -8,6 +8,7 @@
 		MinHeight="700"
 		MinWidth="1100"
         Background="#F4F6F9"
+		WindowState="Maximized"
         WindowStartupLocation="CenterScreen">
 
 	<Window.DataContext>
